@@ -132,7 +132,7 @@ export default function App() {
           {/* Plan Details and Model Info Row */}
           <div className="details-row">
             <div className="plan-details">
-              <h3 className="plan-details-title">Plan Details</h3>
+              <h3 className="plan-details-title">Plan Details (Per User/Month)</h3>
               <div className="plan-details-content">
                 <div className="plan-detail-row">
                   <span className="plan-detail-label">Monthly Cost:</span>
@@ -143,7 +143,7 @@ export default function App() {
                 <div className="plan-detail-row">
                   <span className="plan-detail-label">Premium Requests:</span>
                   <span className="plan-detail-value">
-                    {selectedPlan.allowance.toLocaleString()}/month
+                    {selectedPlan.allowance.toLocaleString()}
                   </span>
                 </div>
               </div>
