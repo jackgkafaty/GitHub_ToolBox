@@ -47,7 +47,7 @@ export default function App() {
     return selectedModel.multiplier;
   };
 
-  const premiumUsed = (requestCount || 0) * getMultiplier() * developerCount;
+  const premiumUsed = (requestCount || 0) * getMultiplier() * (developerCount || 1);
   const included = selectedPlan.allowance;
   const overageRequests = Math.max(0, premiumUsed - included);
   const overageCost = overageRequests * ADDITIONAL_REQUEST_COST;
@@ -112,12 +112,16 @@ export default function App() {
                   Total number of developers:
                   <input
                     type="number"
-                    value={developerCount === 0 || developerCount === "" ? 1 : developerCount}
-                    min="1"
+                    value={developerCount === 0 ? "" : developerCount}
+                    min="0"
                     placeholder="Enter number of developers"
                     onChange={e => {
-                      const val = Number(e.target.value);
-                      setDeveloperCount(val > 0 ? val : 1);
+                      const val = e.target.value;
+                      if (val === "") {
+                        setDeveloperCount(0);
+                      } else {
+                        setDeveloperCount(Number(val));
+                      }
                     }}
                   />
                 </label>
