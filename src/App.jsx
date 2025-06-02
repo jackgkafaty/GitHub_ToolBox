@@ -1,6 +1,6 @@
 import { models, ADDITIONAL_REQUEST_COST } from "./models";
 import { useState } from "react";
-import { CopilotIcon } from "./CopilotIcon";
+import copilotIcon from './assets/github-copilot-white-icon.svg';
 
 export default function App() {
   const plans = [
@@ -37,6 +37,7 @@ export default function App() {
   const [selectedPlan, setSelectedPlan] = useState(plans[0]);
   const [selectedModel, setSelectedModel] = useState(models[0]);
   const [requestCount, setRequestCount] = useState(1);
+  const [developerCount, setDeveloperCount] = useState(1);
   const [overage, setOverage] = useState(0);
 
   const getMultiplier = () => {
@@ -46,7 +47,7 @@ export default function App() {
     return selectedModel.multiplier;
   };
 
-  const premiumUsed = requestCount * getMultiplier();
+  const premiumUsed = requestCount * getMultiplier() * developerCount;
   const included = selectedPlan.allowance;
   const overageRequests = Math.max(0, premiumUsed - included);
   const overageCost = overageRequests * ADDITIONAL_REQUEST_COST;
@@ -54,89 +55,141 @@ export default function App() {
   return (
     <div className="copilot-hero-bg">
       <header className="copilot-header">
-        <div className="copilot-header-left">
-          <CopilotIcon size={28} className="copilot-header-icon" />
-          <span className="copilot-logo">GitHub Copilot</span>
-        </div>
-        <span className="copilot-github-icon">{/* GitHub logo SVG or image here if desired */}</span>
+        <img src={copilotIcon} alt="GitHub Copilot" className="copilot-header-icon" />
+        <span className="copilot-logo">Copilot Premium Request Calculator</span>
       </header>
       <main className="copilot-main">
-        <h1 className="copilot-title">GitHub Copilot Premium Requests</h1>
         <div className="copilot-card">
-          <div className="form-section">
-            <label>
-              Plan:
-              <select value={selectedPlan.key} onChange={e => setSelectedPlan(plans.find(p => p.key === e.target.value))}>
-                {plans.map(plan => (
-                  <option key={plan.key} value={plan.key}>{plan.name}</option>
-                ))}
-              </select>
-            </label>
+          {/* Top Row: Plan and Model Selectors */}
+          <div className="form-row">
+            <div className="form-column">
+              <label>
+                Plan:
+                <select value={selectedPlan.key} onChange={e => setSelectedPlan(plans.find(p => p.key === e.target.value))}>
+                  {plans.map(plan => (
+                    <option key={plan.key} value={plan.key}>{plan.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="form-column">
+              <label>
+                Model:
+                <select
+                  value={models.indexOf(selectedModel)}
+                  onChange={e => setSelectedModel(models[e.target.value])}
+                >
+                  {models.map((m, i) => (
+                    <option key={i} value={i}>
+                      {m.name}
+                      {m.note ? ` (${m.note})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+
+          {/* Request Count and Developer Count Inputs */}
+          <div className="request-input-section">
+            <div className="form-row">
+              <div className="form-column">
+                <label>
+                  Number of requests:
+                  <input
+                    type="number"
+                    value={requestCount}
+                    min="0"
+                    placeholder="Enter number of requests"
+                    onChange={e => setRequestCount(Number(e.target.value))}
+                  />
+                </label>
+              </div>
+              
+              <div className="form-column">
+                <label>
+                  Total number of developers:
+                  <input
+                    type="number"
+                    value={developerCount}
+                    min="1"
+                    placeholder="Enter number of developers"
+                    onChange={e => setDeveloperCount(Number(e.target.value))}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Plan Details and Model Info Row */}
+          <div className="details-row">
             <div className="plan-details">
               <h3 className="plan-details-title">Plan Details</h3>
               <div className="plan-details-content">
                 <div className="plan-detail-row">
                   <span className="plan-detail-label">Monthly Cost:</span>
                   <span className="plan-detail-value">
-                    ${selectedPlan.key === 'business' ? '19' : '39'} USD per granted seat per month
+                    ${selectedPlan.key === 'business' ? '19' : '39'} USD
                   </span>
                 </div>
                 <div className="plan-detail-row">
                   <span className="plan-detail-label">Premium Requests:</span>
                   <span className="plan-detail-value">
-                    {selectedPlan.allowance.toLocaleString()} per user per month
+                    {selectedPlan.allowance.toLocaleString()}/month
                   </span>
                 </div>
               </div>
             </div>
-            <label>
-              Model:
-              <select
-                value={models.indexOf(selectedModel)}
-                onChange={e => setSelectedModel(models[e.target.value])}
-              >
-                {models.map((m, i) => (
-                  <option key={i} value={i}>
-                    {m.name}
-                    {m.note ? ` (${m.note})` : ""}
-                  </option>
-                ))}
-              </select>
-            </label>
+
+            <div className="model-info">
+              <h3>Selected Model</h3>
+              <div className="model-info-content">
+                <div className="model-detail-row">
+                  <span className="model-detail-label">Model Name:</span>
+                  <span className="model-detail-value">
+                    {selectedModel.name}
+                  </span>
+                </div>
+                <div className="model-detail-row">
+                  <span className="model-detail-label">Multiplier:</span>
+                  <span className="model-detail-value">
+                    {getMultiplier() === 0 ? "Unlimited" : getMultiplier()}
+                  </span>
+                </div>
+                {selectedModel.note && (
+                  <div className="model-detail-row">
+                    <span className="model-detail-label">Note:</span>
+                    <span className="model-detail-value">
+                      {selectedModel.note}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Model Multiplier Section */}
+          <div className="multiplier-section">
             <div className="multiplier-info">
-              <div className="multiplier-row">
-                <span>Multiplier:</span>
-                <strong>{getMultiplier()}</strong>
+              <div className="multiplier-header">
+                <h3>Model Multiplier</h3>
+                <div className="multiplier-value">{getMultiplier()}</div>
               </div>
               {getMultiplier() === 0 ? (
                 <div className="unlimited-section">
                   <div className="unlimited-icon">∞</div>
                   <div className="unlimited-text">Unlimited</div>
-                  <div className="unlimited-description">Base model requests are unlimited and don't count against your premium request allowance</div>
+                  <div className="unlimited-description">Base model requests don't count against your premium request allowance</div>
                 </div>
               ) : (
-                <div className="calculation-explanation">
-                  <div className="calculation-formula">
-                    Number of requests × Multiplier = Premium requests used
-                  </div>
-                  <div className="calculation-example">
-                    Example: {requestCount} × {getMultiplier()} = <strong>{premiumUsed}</strong> premium requests
-                  </div>
+                <div className="multiplier-explanation">
+                  <p>Each request to this model uses <strong>{getMultiplier()}</strong> premium requests from your allowance.</p>
                 </div>
               )}
             </div>
-            <label>
-              Number of requests:
-              <input
-                type="number"
-                value={requestCount}
-                min="0"
-                placeholder="Enter number of requests"
-                onChange={e => setRequestCount(Number(e.target.value))}
-              />
-            </label>
           </div>
-          <h2 className="results-title">Results</h2>
+          <h2 className="results-title">Total Cost for additional Premium Requests</h2>
           <div className="results-section">
             <div className="result-row">
               <span>Premium requests used:</span>
