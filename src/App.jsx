@@ -55,7 +55,7 @@ export default function App() {
   return (
     <div className="copilot-hero-bg">
       <header className="copilot-header">
-        <img src={copilotIcon} alt="GitHub Copilot" className="copilot-header-icon" />
+        <img src={copilotIcon} alt="GitHub Copilot" className="copilot-header-icon copilot-header-icon-large" />
         <span className="copilot-logo">Copilot Premium Request Calculator</span>
       </header>
       <main className="copilot-main">
@@ -112,10 +112,13 @@ export default function App() {
                   Total number of developers:
                   <input
                     type="number"
-                    value={developerCount}
+                    value={developerCount === 0 || developerCount === "" ? 1 : developerCount}
                     min="1"
                     placeholder="Enter number of developers"
-                    onChange={e => setDeveloperCount(Number(e.target.value))}
+                    onChange={e => {
+                      const val = Number(e.target.value);
+                      setDeveloperCount(val > 0 ? val : 1);
+                    }}
                   />
                 </label>
               </div>
@@ -187,19 +190,22 @@ export default function App() {
                   <p>Each request to this model uses <strong>{getMultiplier()}</strong> premium requests from your allowance.</p>
                   <div className="formula-display">
                     <h4>Formula:</h4>
-                    <div className="formula">
+                    <div className="formula formula-aligned">
                       <span className="formula-part">{requestCount || 0}</span>
                       <span className="formula-operator">×</span>
                       <span className="formula-part">{getMultiplier()}</span>
                       <span className="formula-operator">×</span>
-                      <span className="formula-part">{developerCount}</span>
+                      <span className="formula-part">{developerCount || 1}</span>
                       <span className="formula-operator">=</span>
                       <span className="formula-result">{premiumUsed.toLocaleString()}</span>
                     </div>
-                    <div className="formula-labels">
+                    <div className="formula-labels formula-aligned">
                       <span className="formula-label">Requests</span>
+                      <span className="formula-label blank"></span>
                       <span className="formula-label">Multiplier</span>
+                      <span className="formula-label blank"></span>
                       <span className="formula-label">Developers</span>
+                      <span className="formula-label blank"></span>
                       <span className="formula-label">Premium Used</span>
                     </div>
                   </div>

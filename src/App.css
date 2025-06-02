@@ -34,6 +34,25 @@ html {
   height: 36px;
 }
 
+.copilot-header-icon.copilot-header-icon-large {
+  width: 56px;
+  height: 56px;
+}
+
+@media (max-width: 900px) {
+  .copilot-header-icon.copilot-header-icon-large {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .copilot-header-icon.copilot-header-icon-large {
+    width: 32px;
+    height: 32px;
+  }
+}
+
 .copilot-logo {
   font-weight: 700;
   font-size: 2.2rem;
@@ -322,15 +341,56 @@ input[type="number"]:hover {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 }
 
-.formula-part {
+.formula-aligned {
+  display: grid;
+  grid-template-columns: 1fr 0.04fr 1fr 0.04fr 1fr 0.04fr 1.1fr;
+  align-items: end;
+  justify-items: center;
+  gap: 0;
+}
+
+.formula-labels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.formula-labels.formula-aligned {
+  display: grid;
+  grid-template-columns: 1fr 0.04fr 1fr 0.04fr 1fr 0.04fr 1.1fr;
+  justify-items: center;
+  align-items: start;
+  margin-top: 0.02rem;
+}
+
+.formula-labels .formula-label {
+  min-width: 0;
+  font-size: 0.72rem;
+  color: #7d8590;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.formula-labels .formula-label.blank {
+  visibility: hidden;
+}
+
+.formula-labels.formula-aligned {
+  margin-top: 0.2rem;
+}
+
+.formula-part, .formula-result {
+  min-width: 0;
+  padding: 0.18rem 0.35rem;
+  font-size: 1.15rem;
   background: #21262c;
   border: 1px solid #30363d;
   border-radius: 4px;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.9rem;
   font-weight: 600;
   color: #e6edf3;
-  min-width: 2rem;
   text-align: center;
 }
 
@@ -345,28 +405,18 @@ input[type="number"]:hover {
   background: #6e5cff;
   color: #fff;
   border: 1px solid #6e5cff;
-  border-radius: 4px;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  min-width: 2rem;
-  text-align: center;
 }
 
-.formula-labels {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
+@media (max-width: 900px) {
+  .formula-aligned, .formula-labels.formula-aligned {
+    grid-template-columns: 1fr 0.08fr 1fr 0.08fr 1fr 0.08fr 1.1fr;
+  }
 }
 
-.formula-label {
-  font-size: 0.75rem;
-  color: #7d8590;
-  text-align: center;
-  min-width: 2rem;
-  margin: 0 0.75rem;
+@media (max-width: 600px) {
+  .formula-aligned, .formula-labels.formula-aligned {
+    grid-template-columns: 1fr 0.12fr 1fr 0.12fr 1fr 0.12fr 1.1fr;
+  }
 }
 
 .unlimited-section {
