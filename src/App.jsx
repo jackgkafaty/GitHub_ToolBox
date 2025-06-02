@@ -36,7 +36,7 @@ export default function App() {
 
   const [selectedPlan, setSelectedPlan] = useState(plans[0]);
   const [selectedModel, setSelectedModel] = useState(models[0]);
-  const [requestCount, setRequestCount] = useState(1);
+  const [requestCount, setRequestCount] = useState("");
   const [developerCount, setDeveloperCount] = useState(1);
   const [overage, setOverage] = useState(0);
 
@@ -47,7 +47,7 @@ export default function App() {
     return selectedModel.multiplier;
   };
 
-  const premiumUsed = requestCount * getMultiplier() * developerCount;
+  const premiumUsed = (requestCount || 0) * getMultiplier() * developerCount;
   const included = selectedPlan.allowance;
   const overageRequests = Math.max(0, premiumUsed - included);
   const overageCost = overageRequests * ADDITIONAL_REQUEST_COST;
@@ -102,7 +102,7 @@ export default function App() {
                     value={requestCount}
                     min="0"
                     placeholder="Enter number of requests"
-                    onChange={e => setRequestCount(Number(e.target.value))}
+                    onChange={e => setRequestCount(e.target.value === "" ? "" : Number(e.target.value))}
                   />
                 </label>
               </div>

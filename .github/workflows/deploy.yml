@@ -1,0 +1,96 @@
+name: Build, Update Models & Deploy to GitHub Pages
+
+on:
+  # Run every 3 days at 6 AM UTC
+  schedule:
+    - cron: '0 6 */3 * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+  
+  # Run on pushes to main branch
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update model multipliers
+        run: npm run fetch-models
+
+      - name: Check for model changes
+        id: check_changes
+        run: |
+          if git diff --quiet src/models.js; then
+            echo "models_changed=false" >> $GITHUB_OUTPUT
+            echo "No changes to model multipliers"
+          else
+            echo "models_changed=true" >> $GITHUB_OUTPUT
+            echo "Model multipliers have been updated"
+          fi
+
+      - name: Commit updated models (if changed)
+        if: steps.check_changes.outputs.models_changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/models.js
+          git commit -m "🤖 Auto-update GitHub Copilot model multipliers
+
+          - Updated model data from GitHub documentation
+          - Triggered by scheduled workflow on $(date -u +"%Y-%m-%d %H:%M UTC")"
+          git push
+
+      - name: Build project
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Create deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Site URL**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
+          echo "- **Model Updates**: ${{ steps.check_changes.outputs.models_changed == 'true' && '✅ Updated' || '⏸️ No changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Build Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "- Node.js Version: $(node --version)" >> $GITHUB_STEP_SUMMARY
+          echo "- NPM Version: $(npm --version)" >> $GITHUB_STEP_SUMMARY
+          if [ -f "dist/assets/index-*.js" ]; then
+            JS_SIZE=$(ls -la dist/assets/index-*.js | awk '{print $5}' | numfmt --to=iec)
+            echo "- Bundle Size: $JS_SIZE" >> $GITHUB_STEP_SUMMARY
+          fi
