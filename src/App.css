@@ -1,0 +1,524 @@
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: #0d1117;
+  margin: 0;
+  padding: 0;
+}
+
+.copilot-hero-bg {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 0%, #3b1aff 0%, #0d1117 60%);
+  color: #fff;
+}
+
+.copilot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5rem 3.5rem 2rem 3.5rem;
+}
+
+.copilot-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.copilot-header-icon {
+  color: #ffffff;
+}
+
+.copilot-logo {
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: -0.5px;
+}
+
+.copilot-github-icon {
+  /* Add GitHub logo here if desired */
+}
+
+.copilot-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2.5rem;
+}
+
+.copilot-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.copilot-card {
+  background: #161b22;
+  border-radius: 22px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.22);
+  padding: 3.2rem 3.2rem 2.5rem 3.2rem;
+  min-width: 400px;
+  max-width: 600px;
+  width: 100%;
+  margin-bottom: 2.5rem;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.7rem;
+  margin-bottom: 2.2rem;
+  position: relative;
+}
+
+.form-section label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 1rem;
+  gap: 0.5rem;
+  color: #e6edf3;
+}
+
+.form-section > * {
+  margin-bottom: 0;
+}
+
+input[type="number"], select {
+  padding: 0.75rem 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  background: #161b22;
+  color: #e6edf3;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 44px;
+  height: 44px;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+/* Hide number input spinner buttons */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Hide number input spinner buttons */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type="number"]:focus, select:focus {
+  outline: none;
+  border-color: #1f6feb;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.1);
+  background: #0d1117;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="%23ffffff" d="M6 8L0 2h12z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px 8px;
+  padding-right: 3rem;
+  position: relative;
+  z-index: 10;
+}
+
+select option {
+  background-color: #161b22;
+  color: #e6edf3;
+  padding: 0.75rem 1rem;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+select option:hover {
+  background-color: #21262d;
+}
+
+select option:checked {
+  background-color: #1f6feb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+select:hover {
+  border-color: #1f6feb;
+  background-color: #0d1117;
+}
+
+input[type="number"] {
+  cursor: text;
+}
+
+input[type="number"]:hover {
+  border-color: #1f6feb;
+  background-color: #0d1117;
+}
+
+.results-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.8rem 0;
+  color: #fff;
+}
+
+.results-section {
+  background: #21262c;
+  border-radius: 12px;
+  padding: 1.2rem 1.8rem;
+  font-size: 1.1rem;
+}
+
+.results-section h2 {
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 1.1rem;
+}
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1em;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #282e39;
+}
+
+.result-row:last-child {
+  border-bottom: none;
+}
+
+.results-section b {
+  font-size: 1.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+.copilot-pricing-btn {
+  display: inline-block;
+  background: linear-gradient(90deg, #3b1aff 0%, #6e5cff 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 2px 12px rgba(59,26,255,0.18);
+  transition: background 0.2s, color 0.2s;
+  text-align: center;
+  flex: 1;
+}
+.copilot-pricing-btn:hover {
+  background: linear-gradient(90deg, #6e5cff 0%, #3b1aff 100%);
+  color: #e0e0ff;
+}
+
+.multiplier-info {
+  background: #21262c;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 0;
+  border: 1px solid #30363d;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.multiplier-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.multiplier-row strong {
+  font-size: 1.2rem;
+  color: #6e5cff;
+  font-weight: 700;
+}
+
+.calculation-explanation {
+  border-top: 1px solid #30363d;
+  padding-top: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.calculation-formula {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e6edf3;
+  margin-bottom: 0.5rem;
+}
+
+.calculation-example {
+  font-size: 0.95rem;
+  color: #7d8590;
+}
+
+.calculation-example strong {
+  color: #6e5cff;
+  font-weight: 700;
+}
+
+.unlimited-section {
+  border-top: 1px solid #30363d;
+  padding-top: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.unlimited-icon {
+  font-size: 2rem;
+  color: #6e5cff;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.unlimited-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #6e5cff;
+  margin-bottom: 0.5rem;
+}
+
+.unlimited-description {
+  font-size: 0.9rem;
+  color: #7d8590;
+  line-height: 1.4;
+}
+
+.plan-details {
+  background: #21262c;
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #30363d;
+}
+
+.plan-details-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e6edf3;
+  margin: 0 0 1rem 0;
+}
+
+.plan-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.plan-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.plan-detail-label {
+  color: #7d8590;
+  font-weight: 500;
+}
+
+.plan-detail-value {
+  color: #e6edf3;
+  font-weight: 600;
+  text-align: right;
+}
+
+.copilot-feature-btn {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1rem 2.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s;
+  text-align: center;
+  flex: 1;
+}
+
+.copilot-feature-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.button-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .copilot-header {
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+  }
+  .copilot-card {
+    padding: 2rem 1.2rem 1.2rem 1.2rem;
+    max-width: 98vw;
+  }
+  .copilot-title {
+    font-size: 2.1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .copilot-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+  }
+  
+  .copilot-header-left {
+    gap: 0.5rem;
+  }
+  
+  .copilot-header-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .copilot-main {
+    margin-top: 1.2rem;
+    padding: 0 0.5rem;
+  }
+  .copilot-card {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    max-width: 100vw;
+    min-width: 0;
+  }
+  .copilot-title {
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+  .copilot-pricing-btn {
+    font-size: 1rem;
+    padding: 0.7rem 1.2rem;
+  }
+  .results-section {
+    padding: 0.8rem 0.4rem;
+    font-size: 0.95rem;
+  }
+  .results-title {
+    font-size: 1.2rem;
+    margin: 1.2rem 0 0.6rem 0;
+  }
+  .form-section label {
+    font-size: 1rem;
+  }
+  .multiplier-info {
+    padding: 1rem;
+    margin-bottom: 0;
+    min-height: 100px;
+  }
+  
+  .plan-details {
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .plan-details-title {
+    font-size: 1rem;
+  }
+  
+  .plan-detail-row {
+    font-size: 0.95rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .plan-detail-value {
+    text-align: left;
+  }
+  
+  .multiplier-row {
+    font-size: 1rem;
+  }
+  
+  .calculation-formula {
+    font-size: 0.95rem;
+  }
+  
+  .calculation-example {
+    font-size: 0.9rem;
+  }
+  
+  .unlimited-icon {
+    font-size: 1.5rem;
+  }
+  
+  .unlimited-text {
+    font-size: 1rem;
+  }
+  
+  .unlimited-description {
+    font-size: 0.85rem;
+  }
+  
+  .copilot-feature-btn {
+    font-size: 1rem;
+    padding: 0.7rem 1.2rem;
+  }
+  
+  .button-container {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  input[type="number"], select {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    height: 36px;
+    box-sizing: border-box;
+    line-height: 1.2;
+  }
+  
+  select {
+    padding-right: 2.5rem;
+    background-size: 10px;
+  }
+}
