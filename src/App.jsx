@@ -222,9 +222,9 @@ export default function App() {
               <span>Premium requests used:</span>
               <b>{premiumUsed.toLocaleString()}</b>
             </div>
-            <div className="result-row">
+            <div className="result-row result-row-minus">
               <span>Included in plan:</span>
-              <b>{included.toLocaleString()}</b>
+              <b><span className="result-minus">-</span>{included.toLocaleString()}</b>
             </div>
             <div className="result-row">
               <span>Overage premium requests:</span>
