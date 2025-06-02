@@ -82,8 +82,7 @@ export default function App() {
                 >
                   {models.map((m, i) => (
                     <option key={i} value={i}>
-                      {m.name}
-                      {m.note ? ` (${m.note})` : ""}
+                      {m.name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : m.name}
                     </option>
                   ))}
                 </select>
@@ -155,7 +154,7 @@ export default function App() {
                 <div className="model-detail-row">
                   <span className="model-detail-label">Model Name:</span>
                   <span className="model-detail-value">
-                    {selectedModel.name}
+                    {selectedModel.name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : selectedModel.name}
                   </span>
                 </div>
                 <div className="model-detail-row">
@@ -164,7 +163,7 @@ export default function App() {
                     {getMultiplier() === 0 ? "Unlimited" : getMultiplier()}
                   </span>
                 </div>
-                {selectedModel.note && (
+                {selectedModel.note && selectedModel.name !== "Base model (GPT-4.1)" && (
                   <div className="model-detail-row">
                     <span className="model-detail-label">Note:</span>
                     <span className="model-detail-value">
