@@ -180,7 +180,9 @@ export default function App() {
             <div className="multiplier-info">
               <div className="multiplier-header">
                 <h3>Model Multiplier</h3>
-                <div className="multiplier-value">{getMultiplier()}</div>
+                {getMultiplier() === 0 ? null : (
+                  <div className="multiplier-value">{getMultiplier()}</div>
+                )}
               </div>
               {getMultiplier() === 0 ? (
                 <div className="unlimited-section">
