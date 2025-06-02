@@ -18,6 +18,7 @@ html {
   min-height: 100vh;
   background: radial-gradient(ellipse at 50% 0%, #3b1aff 0%, #0d1117 60%);
   color: #fff;
+  padding-bottom: 2rem;
 }
 
 .copilot-header {
@@ -25,7 +26,7 @@ html {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  padding: 3rem 3.5rem 1rem 3.5rem;
+  padding: 2rem 3.5rem 0.5rem 3.5rem;
 }
 
 .copilot-header-icon {
@@ -47,13 +48,13 @@ html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .copilot-title {
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   text-align: center;
   letter-spacing: -1px;
   line-height: 1.1;
@@ -63,19 +64,19 @@ html {
   background: #161b22;
   border-radius: 22px;
   box-shadow: 0 4px 32px rgba(0,0,0,0.22);
-  padding: 3.2rem 3.2rem 2.5rem 3.2rem;
+  padding: 2.2rem 2.5rem 2rem 2.5rem;
   min-width: 400px;
   max-width: 900px;
   width: 100%;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   box-sizing: border-box;
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 1.7rem;
-  margin-bottom: 2.2rem;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
   position: relative;
 }
 
@@ -200,22 +201,23 @@ input[type="number"]:hover {
 .results-section {
   background: #21262c;
   border-radius: 12px;
-  padding: 1.2rem 1.8rem;
-  font-size: 1.1rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.05rem;
+  margin-top: 1rem;
 }
 
 .results-section h2 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   margin-top: 0;
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.8rem;
 }
 
 .result-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.1em;
-  padding: 0.4rem 0;
+  font-size: 1.05em;
+  padding: 0.3rem 0;
   border-bottom: 1px solid #282e39;
 }
 
@@ -251,10 +253,10 @@ input[type="number"]:hover {
 .multiplier-info {
   background: #21262c;
   border-radius: 12px;
-  padding: 1.2rem 1.5rem;
+  padding: 1rem 1.2rem;
   margin-bottom: 0;
   border: 1px solid #30363d;
-  min-height: 120px;
+  min-height: 90px;
   display: flex;
   flex-direction: column;
 }
@@ -295,6 +297,78 @@ input[type="number"]:hover {
   font-weight: 700;
 }
 
+/* Formula Display Styles */
+.formula-display {
+  margin-top: 1rem;
+  background: rgba(110, 92, 255, 0.1);
+  border: 1px solid rgba(110, 92, 255, 0.3);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+.formula-display h4 {
+  font-size: 0.9rem;
+  color: #e6edf3;
+  margin: 0 0 0.6rem 0;
+  font-weight: 600;
+}
+
+.formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+}
+
+.formula-part {
+  background: #21262c;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e6edf3;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.formula-operator {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #6e5cff;
+  margin: 0 0.2rem;
+}
+
+.formula-result {
+  background: #6e5cff;
+  color: #fff;
+  border: 1px solid #6e5cff;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.formula-labels {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.formula-label {
+  font-size: 0.75rem;
+  color: #7d8590;
+  text-align: center;
+  min-width: 2rem;
+  margin: 0 0.75rem;
+}
+
 .unlimited-section {
   border-top: 1px solid #30363d;
   padding-top: 1rem;
@@ -329,9 +403,9 @@ input[type="number"]:hover {
 .plan-details {
   background: #21262c;
   border-radius: 12px;
-  padding: 1.2rem 1.5rem;
+  padding: 1rem 1.2rem;
   border: 1px solid #30363d;
-  min-height: 140px;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
   word-wrap: break-word;
@@ -402,7 +476,7 @@ input[type="number"]:hover {
 .button-container {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1.2rem;
   flex-wrap: wrap;
 }
 
@@ -624,6 +698,28 @@ input[type="number"]:hover {
     padding-right: 2.5rem;
     background-size: 10px;
   }
+  
+  /* Formula responsive adjustments */
+  .formula {
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  
+  .formula-part, .formula-result {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    min-width: 1.5rem;
+  }
+  
+  .formula-labels {
+    gap: 0.3rem;
+  }
+  
+  .formula-label {
+    font-size: 0.7rem;
+    min-width: 1.5rem;
+    margin: 0 0.5rem;
+  }
 }
 
 /* Extra small screens (phones in portrait) */
@@ -714,19 +810,19 @@ input[type="number"]:hover {
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .details-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  margin: 2rem 0;
+  gap: 1.2rem;
+  margin: 1.2rem 0;
 }
 
 .multiplier-section {
-  margin: 2rem 0;
+  margin: 1.2rem 0;
 }
 
 .request-input-section {
@@ -875,9 +971,9 @@ input[type="number"]:hover {
 .model-info {
   background: #21262c;
   border-radius: 12px;
-  padding: 1.2rem 1.5rem;
+  padding: 1rem 1.2rem;
   border: 1px solid #30363d;
-  min-height: 140px;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
   word-wrap: break-word;

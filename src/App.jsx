@@ -185,6 +185,24 @@ export default function App() {
               ) : (
                 <div className="multiplier-explanation">
                   <p>Each request to this model uses <strong>{getMultiplier()}</strong> premium requests from your allowance.</p>
+                  <div className="formula-display">
+                    <h4>Formula:</h4>
+                    <div className="formula">
+                      <span className="formula-part">{requestCount || 0}</span>
+                      <span className="formula-operator">×</span>
+                      <span className="formula-part">{getMultiplier()}</span>
+                      <span className="formula-operator">×</span>
+                      <span className="formula-part">{developerCount}</span>
+                      <span className="formula-operator">=</span>
+                      <span className="formula-result">{premiumUsed.toLocaleString()}</span>
+                    </div>
+                    <div className="formula-labels">
+                      <span className="formula-label">Requests</span>
+                      <span className="formula-label">Multiplier</span>
+                      <span className="formula-label">Developers</span>
+                      <span className="formula-label">Premium Used</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
