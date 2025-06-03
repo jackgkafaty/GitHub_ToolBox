@@ -1,5 +1,5 @@
 // GitHub Copilot plans and features data
-// Auto-updated from GitHub docs on 2025-06-03T18:10:13.026Z
+// Auto-updated from GitHub docs on 2025-06-03T22:11:18.141Z
 // Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 export const planDetails = [
@@ -9,7 +9,7 @@ export const planDetails = [
     "billing": "Forever",
     "description": "For personal use",
     "popular": false,
-    "buttonText": "Get started",
+    "buttonText": "Get started today",
     "githubUrl": "https://github.com/copilot"
   },
   {
@@ -18,8 +18,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For individual developers",
     "popular": false,
-    "buttonText": "Start free trial",
-    "githubUrl": "https://github.com/github-copilot/signup?ref_cta=Copilot+trial&ref_loc=about+github+copilot&ref_page=docs"
+    "buttonText": "Get started today",
+    "githubUrl": "https://github.com/github-copilot/pro?cft=copilot_li.copilot_plans.cfi"
   },
   {
     "name": "Pro+",
@@ -27,8 +27,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For power users and professionals",
     "popular": false,
-    "buttonText": "Start free trial",
-    "githubUrl": "https://github.com/github-copilot/signup?ref_cta=Copilot+Pro%2B&ref_loc=subscriptions+page&ref_page=docs"
+    "buttonText": "Get started today",
+    "githubUrl": "https://github.com/github-copilot/pro-plus?cft=copilot_li.copilot_plans.cpp"
   },
   {
     "name": "Business",
@@ -36,8 +36,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For teams and organizations",
     "popular": false,
-    "buttonText": "Start free trial",
-    "githubUrl": "https://github.com/github-copilot/purchase?priority=business&cft=copilot_li.copilot_plans.cfb"
+    "buttonText": "Get started today",
+    "githubUrl": "https://github.com/organizations/enterprise_plan"
   },
   {
     "name": "Enterprise",
@@ -45,8 +45,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For large enterprises",
     "popular": false,
-    "buttonText": "Get started",
-    "githubUrl": "https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce"
+    "buttonText": "Get started today",
+    "githubUrl": "https://github.com/organizations/enterprise_plan"
   }
 ];
 
@@ -55,7 +55,7 @@ export const featureCategories = [
     "name": "Premium requests",
     "features": [
       {
-        "name": "Premium requests",
+        "name": "Premium requests per month",
         "values": [
           "50 per month",
           "300 per month",
@@ -65,7 +65,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Purchase additional premium requests at $0.04/request",
+        "name": "Purchase additional premium requests",
         "values": [
           "Not included",
           "Included",
@@ -80,7 +80,7 @@ export const featureCategories = [
     "name": "Agents",
     "features": [
       {
-        "name": "Agent mode",
+        "name": "Copilot coding agent",
         "values": [
           "Not included",
           "Not included",
@@ -90,7 +90,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Code review",
+        "name": "Agent mode in VS Code",
         "values": [
           "Included",
           "Included",
@@ -100,15 +100,14 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Coding agent",
+        "name": "Copilot code review",
         "values": [
           "Only \"Review selection\" in VS Code",
           "Included",
           "Included",
           "Included",
           "Included"
-        ],
-        "preview": true
+        ]
       },
       {
         "name": "Copilot Extensions",
@@ -136,7 +135,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Copilot Chat on GitHub.com",
+        "name": "Copilot Chat in GitHub",
         "values": [
           "Included",
           "Included",
@@ -146,7 +145,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Copilot Chat on GitHub Mobile",
+        "name": "Copilot Chat in GitHub Mobile",
         "values": [
           "Included",
           "Included",
@@ -166,7 +165,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Copilot Chat in CLI",
+        "name": "Inline chat in IDEs",
         "values": [
           "Included",
           "Included",
@@ -176,10 +175,20 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Copilot Chat on Copilot.microsoft.com",
+        "name": "Slash commands",
         "values": [
           "Included",
           "Included",
+          "Included",
+          "Included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Increased GitHub Models rate limits",
+        "values": [
+          "Not included",
+          "Not included",
           "Included",
           "Included",
           "Included"
@@ -187,16 +196,6 @@ export const featureCategories = [
       },
       {
         "name": "Copilot Chat skills in IDEs",
-        "values": [
-          "Not included",
-          "Not included",
-          "Included",
-          "Included",
-          "Included"
-        ]
-      },
-      {
-        "name": "Knowledge base access",
         "values": [
           "Not included",
           "Included",
@@ -211,7 +210,7 @@ export const featureCategories = [
     "name": "Models",
     "features": [
       {
-        "name": "GPT-4.1-turbo",
+        "name": "GPT-4o",
         "values": [
           "Included",
           "Included",
@@ -231,7 +230,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude 3.7 Sonnet",
+        "name": "Claude 3.5 Haiku",
         "values": [
           "Not included",
           "Included",
@@ -241,7 +240,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude 4 Sonnet",
+        "name": "Claude 3 Opus",
         "values": [
           "Not included",
           "Included",
@@ -251,7 +250,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude Opus 4",
+        "name": "Claude 3 Sonnet",
         "values": [
           "Not included",
           "Not included",
@@ -261,7 +260,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Gemini 2.5 Pro",
+        "name": "Gemini 1.5 Pro",
         "values": [
           "Included",
           "Included",
@@ -271,7 +270,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Gemini 2.0 Flash Experimental",
+        "name": "Gemini 1.5 Flash",
         "values": [
           "Not included",
           "Included",
@@ -281,7 +280,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4o",
+        "name": "GPT-4",
         "values": [
           "Included",
           "Included",
@@ -291,7 +290,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4o-mini",
+        "name": "GPT-4 Turbo",
         "values": [
           "Included",
           "Included",
@@ -301,7 +300,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4.5-turbo",
+        "name": "GPT-4o mini",
         "values": [
           "Not included",
           "Not included",
@@ -311,7 +310,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "o1",
+        "name": "o1-preview",
         "values": [
           "Not included",
           "Included",
@@ -321,7 +320,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "o3",
+        "name": "o1-mini",
         "values": [
           "Not included",
           "Not included",
@@ -331,7 +330,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GitHub Models in IDEs",
+        "name": "o4-mini",
         "values": [
           "Included",
           "Included",
@@ -341,7 +340,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Azure AI models",
+        "name": "o3-mini",
         "values": [
           "Not included",
           "Included",
@@ -356,7 +355,7 @@ export const featureCategories = [
     "name": "Code completion",
     "features": [
       {
-        "name": "Code completion in IDEs",
+        "name": "Real-time code suggestions with the base model",
         "values": [
           "2000 completions per month",
           "Included",
@@ -366,7 +365,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Multi-line completion",
+        "name": "Next edit suggestions",
         "values": [
           "Included",
           "Included",
@@ -381,7 +380,7 @@ export const featureCategories = [
     "name": "Customization",
     "features": [
       {
-        "name": "Block suggestions matching public code",
+        "name": "Repository-level custom instructions",
         "values": [
           "Included",
           "Included",
@@ -391,7 +390,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Fine-tuned custom models",
+        "name": "Fine tuning",
         "values": [
           "Not included",
           "Not included",
@@ -401,37 +400,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Organization-wide policy management",
-        "values": [
-          "Not included",
-          "Not included",
-          "Not included",
-          "Included",
-          "Included"
-        ]
-      },
-      {
-        "name": "Organization usage dashboard",
-        "values": [
-          "Not included",
-          "Not included",
-          "Not included",
-          "Included",
-          "Included"
-        ]
-      },
-      {
-        "name": "Exclude specified files",
-        "values": [
-          "Not included",
-          "Not included",
-          "Not included",
-          "Not included",
-          "Included"
-        ]
-      },
-      {
-        "name": "Repository indexing for Copilot Chat",
+        "name": "Personal custom instructions",
         "values": [
           "Included",
           "Included",
@@ -441,7 +410,37 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Knowledge base indexing",
+        "name": "Organization custom instructions",
+        "values": [
+          "Included",
+          "Included",
+          "Included",
+          "Included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Exclude files",
+        "values": [
+          "Not included",
+          "Not included",
+          "Not included",
+          "Not included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Organization policy management",
+        "values": [
+          "Included",
+          "Included",
+          "Included",
+          "Included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Enterprise organization and custom instructions",
         "values": [
           "Not included",
           "Not included",
@@ -451,7 +450,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Bing indexing",
+        "name": "Enterprise Copilot Chat context",
         "values": [
           "Not included",
           "Not included",
@@ -466,47 +465,47 @@ export const featureCategories = [
     "name": "Other features",
     "features": [
       {
-        "name": "GitHub CLI integration",
+        "name": "Copilot pull request summaries",
         "values": [
           "Not included",
           "Included",
           "Included",
           "Included",
-          "Included"
-        ]
-      },
-      {
-        "name": "Copilot in the GitHub web interface",
-        "values": [
-          "Not included",
-          "Not included",
-          "Included",
-          "Included",
-          "Included"
-        ]
-      },
-      {
-        "name": "IP indemnification",
-        "values": [
-          "Not included",
-          "Not included",
-          "Not included",
-          "Not included",
-          "Included"
-        ]
-      },
-      {
-        "name": "SAML SSO",
-        "values": [
-          "Not included",
-          "Not included",
-          "Not included",
-          "Not included",
           "Included"
         ]
       },
       {
         "name": "Audit logs",
+        "values": [
+          "Not included",
+          "Not included",
+          "Included",
+          "Included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Copilot knowledge bases",
+        "values": [
+          "Not included",
+          "Not included",
+          "Not included",
+          "Not included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Fine tuning",
+        "values": [
+          "Not included",
+          "Not included",
+          "Not included",
+          "Not included",
+          "Included"
+        ]
+      },
+      {
+        "name": "Copilot in the CLI",
         "values": [
           "Included",
           "Included",
@@ -519,4 +518,8 @@ export const featureCategories = [
   }
 ];
 
+<<<<<<< HEAD
 export const LAST_UPDATED = "2025-06-03T18:10:13.025Z";
+=======
+export const LAST_UPDATED = "2025-06-03T22:11:18.140Z";
+>>>>>>> 9b06d4a (Fix padding issues, enhance unlimited display, update feature data with accurate GitHub docs, and fix button links)

@@ -39,6 +39,7 @@ export default function Calculator() {
   const [requestCount, setRequestCount] = useState("");
   const [developerCount, setDeveloperCount] = useState(1);
   const [overage, setOverage] = useState(0);
+  const [divideRequests, setDivideRequests] = useState(false);
 
   // Create options for react-select with colors
   const modelOptions = models.map((model, index) => ({
@@ -65,11 +66,25 @@ export default function Calculator() {
       return (requestCount || 0) * multiplier * (developerCount || 1);
     }
     
-    // For multiple models, use the same number of requests for each model
-    return selectedModels.reduce((total, model) => {
-      const multiplier = model.name === "Base model (GPT-4.1)" ? 0 : model.multiplier;
-      return total + ((requestCount || 0) * multiplier * (developerCount || 1));
-    }, 0);
+    if (divideRequests) {
+      // Divide requests across models, but exclude base model from division
+      const premiumModels = selectedModels.filter(model => model.name !== "Base model (GPT-4.1)");
+      const requestsPerModel = premiumModels.length > 0 ? Math.floor((requestCount || 0) / premiumModels.length) : 0;
+      
+      return selectedModels.reduce((total, model) => {
+        const multiplier = model.name === "Base model (GPT-4.1)" ? 0 : model.multiplier;
+        if (model.name === "Base model (GPT-4.1)") {
+          return total; // Base model contributes 0 regardless of request count
+        }
+        return total + (requestsPerModel * multiplier * (developerCount || 1));
+      }, 0);
+    } else {
+      // Use same number of requests for each model
+      return selectedModels.reduce((total, model) => {
+        const multiplier = model.name === "Base model (GPT-4.1)" ? 0 : model.multiplier;
+        return total + ((requestCount || 0) * multiplier * (developerCount || 1));
+      }, 0);
+    }
   };
 
   const premiumUsed = calculatePremiumUsed();
@@ -274,17 +289,19 @@ export default function Calculator() {
         </div>
       </div>
 
-      {/* Model Multiplier Section */}
-      <div className="multiplier-section">
+      {/* Model Multiplier Section - Now Outside the Card */}
+      <h2 className="multiplier-title">
+        {selectedModels.length === 1 ? "Model Multiplier" : "Model Multiplier Breakdown"}
+      </h2>
         <div className="multiplier-info">
-          <div className="multiplier-header">
-            <h3>
-              {selectedModels.length === 1 ? "Model Multiplier" : "Model Multiplier Breakdown"}
-            </h3>
-            {selectedModels.length === 1 && getMultiplier() !== 0 && (
-              <div className="multiplier-value">{getMultiplier()}</div>
-            )}
-          </div>
+          {selectedModels.length === 1 && getMultiplier() !== 0 && (
+            <>
+              <p className="multiplier-description">
+                <strong>{selectedModels[0].name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : selectedModels[0].name}</strong> has a request multiplier of:
+              </p>
+              <div className="single-multiplier-value">{getMultiplier()}</div>
+            </>
+          )}
           {selectedModels.length === 1 ? (
             // Single model display
             getMultiplier() === 0 ? (
@@ -295,7 +312,6 @@ export default function Calculator() {
               </div>
             ) : (
               <div className="multiplier-explanation">
-                <p>Each request to this model uses <strong>{getMultiplier()}</strong> premium requests from your allowance.</p>
                 <div className="formula-display">
                   <h4>Formula:</h4>
                   <div className="formula formula-aligned">
@@ -322,11 +338,36 @@ export default function Calculator() {
           ) : (
             // Multiple models display
             <div className="multiplier-explanation">
+              {/* Toggle positioned directly above formula breakdown */}
+              <div className="toggle-container-below-title">
+                <span className="toggle-text">Divide the number of requests across the selected models</span>
+                <label className="toggle-label">
+                  <input
+                    type="checkbox"
+                    checked={divideRequests}
+                    onChange={(e) => setDivideRequests(e.target.checked)}
+                    className="toggle-switch"
+                  />
+                </label>
+              </div>
               <div className="formula-display">
                 {selectedModels.map((model, index) => {
                   const color = modelOptions.find(opt => opt.value === model)?.color || '#58a6ff';
                   const multiplier = model.name === "Base model (GPT-4.1)" ? 0 : model.multiplier;
-                  const premiumForModel = (requestCount || 0) * multiplier * (developerCount || 1);
+                  
+                  // Calculate requests per model based on toggle state
+                  let requestsForModel;
+                  if (model.name === "Base model (GPT-4.1)") {
+                    requestsForModel = "∞"; // Always show unlimited for base model
+                  } else if (divideRequests) {
+                    // When dividing, exclude base model from division calculation
+                    const premiumModels = selectedModels.filter(m => m.name !== "Base model (GPT-4.1)");
+                    requestsForModel = premiumModels.length > 0 ? Math.floor((requestCount || 0) / premiumModels.length) : (requestCount || 0);
+                  } else {
+                    requestsForModel = (requestCount || 0);
+                  }
+                  
+                  const premiumForModel = typeof requestsForModel === 'string' ? 0 : requestsForModel * multiplier * (developerCount || 1);
                   
                   return (
                     <div key={index} className="formula-breakdown-container" style={{ 
@@ -340,13 +381,13 @@ export default function Calculator() {
                       {multiplier === 0 ? (
                         <>
                           <div className="formula formula-aligned" style={{ fontSize: '0.9rem' }}>
-                            <span className="formula-part">{(requestCount || 0)}</span>
+                            <span className="formula-part">{typeof requestsForModel === 'string' ? requestsForModel : requestsForModel}</span>
                             <span className="formula-operator">×</span>
                             <span className="formula-part">0</span>
                             <span className="formula-operator">×</span>
                             <span className="formula-part">{developerCount || 1}</span>
                             <span className="formula-operator">=</span>
-                            <span className="formula-result">0</span>
+                            <span className="formula-result unlimited-result">∞</span>
                           </div>
                           <div className="formula-labels formula-aligned">
                             <span className="formula-label">Requests</span>
@@ -355,13 +396,13 @@ export default function Calculator() {
                             <span className="formula-label blank"></span>
                             <span className="formula-label">Developers</span>
                             <span className="formula-label blank"></span>
-                            <span className="formula-label">Premium Used</span>
+                            <span className="formula-label" style={{ visibility: 'hidden' }}></span>
                           </div>
                         </>
                       ) : (
                         <>
                           <div className="formula formula-aligned" style={{ fontSize: '0.9rem' }}>
-                            <span className="formula-part">{(requestCount || 0)}</span>
+                            <span className="formula-part">{requestsForModel}</span>
                             <span className="formula-operator">×</span>
                             <span className="formula-part">{multiplier}</span>
                             <span className="formula-operator">×</span>
@@ -384,6 +425,7 @@ export default function Calculator() {
                   );
                 })}
               </div>
+              
               {/* Total Premium Request with breakdown style */}
               <div className="total-premium-section">
                 <div className="total-premium-card">
@@ -403,7 +445,7 @@ export default function Calculator() {
             </div>
           )}
         </div>
-      </div>
+
       <h2 className="results-title">Total Cost for additional Premium Requests</h2>
       <div className="results-section">
         <div className="result-row">
