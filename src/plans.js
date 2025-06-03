@@ -1,5 +1,5 @@
 // GitHub Copilot plans and features data
-// Auto-updated from GitHub docs on 2025-06-03T22:11:18.141Z
+// Auto-updated from GitHub docs on 2025-06-03T22:17:22.911Z
 // Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 export const planDetails = [
@@ -9,7 +9,7 @@ export const planDetails = [
     "billing": "Forever",
     "description": "For personal use",
     "popular": false,
-    "buttonText": "Get started today",
+    "buttonText": "Get started",
     "githubUrl": "https://github.com/copilot"
   },
   {
@@ -18,8 +18,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For individual developers",
     "popular": false,
-    "buttonText": "Get started today",
-    "githubUrl": "https://github.com/github-copilot/pro?cft=copilot_li.copilot_plans.cfi"
+    "buttonText": "Start free trial",
+    "githubUrl": "https://github.com/github-copilot/signup?ref_cta=Copilot+trial&ref_loc=about+github+copilot&ref_page=docs"
   },
   {
     "name": "Pro+",
@@ -27,8 +27,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For power users and professionals",
     "popular": false,
-    "buttonText": "Get started today",
-    "githubUrl": "https://github.com/github-copilot/pro-plus?cft=copilot_li.copilot_plans.cpp"
+    "buttonText": "Start free trial",
+    "githubUrl": "https://github.com/github-copilot/signup?ref_cta=Copilot+Pro%2B&ref_loc=subscriptions+page&ref_page=docs"
   },
   {
     "name": "Business",
@@ -36,8 +36,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For teams and organizations",
     "popular": false,
-    "buttonText": "Get started today",
-    "githubUrl": "https://github.com/organizations/enterprise_plan"
+    "buttonText": "Start free trial",
+    "githubUrl": "https://github.com/github-copilot/purchase?priority=business&cft=copilot_li.copilot_plans.cfb"
   },
   {
     "name": "Enterprise",
@@ -45,8 +45,8 @@ export const planDetails = [
     "billing": "per user/month",
     "description": "For large enterprises",
     "popular": false,
-    "buttonText": "Get started today",
-    "githubUrl": "https://github.com/organizations/enterprise_plan"
+    "buttonText": "Get started",
+    "githubUrl": "https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce"
   }
 ];
 
@@ -518,8 +518,4 @@ export const featureCategories = [
   }
 ];
 
-<<<<<<< HEAD
-export const LAST_UPDATED = "2025-06-03T18:10:13.025Z";
-=======
-export const LAST_UPDATED = "2025-06-03T22:11:18.140Z";
->>>>>>> 9b06d4a (Fix padding issues, enhance unlimited display, update feature data with accurate GitHub docs, and fix button links)
+export const LAST_UPDATED = "2025-06-03T22:17:22.910Z";
