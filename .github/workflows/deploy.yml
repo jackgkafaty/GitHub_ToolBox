@@ -1,4 +1,4 @@
-name: Build, Update Models & Deploy to GitHub Pages
+name: Build, Update Data & Deploy to GitHub Pages
 
 on:
   # Run every 3 days at 6 AM UTC
@@ -41,30 +41,60 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Update model multipliers
-        run: npm run fetch-models
+      - name: Update data
+        run: |
+          npm run fetch-models
+          npm run fetch-plans
 
-      - name: Check for model changes
+      - name: Check for data changes
         id: check_changes
         run: |
-          if git diff --quiet src/models.js; then
-            echo "models_changed=false" >> $GITHUB_OUTPUT
-            echo "No changes to model multipliers"
-          else
-            echo "models_changed=true" >> $GITHUB_OUTPUT
+          models_changed=false
+          plans_changed=false
+          
+          if ! git diff --quiet src/models.js; then
+            models_changed=true
             echo "Model multipliers have been updated"
           fi
+          
+          if ! git diff --quiet src/plans.js; then
+            plans_changed=true
+            echo "Plans/features have been updated"
+          fi
+          
+          echo "models_changed=$models_changed" >> $GITHUB_OUTPUT
+          echo "plans_changed=$plans_changed" >> $GITHUB_OUTPUT
+          
+          if [ "$models_changed" = true ] || [ "$plans_changed" = true ]; then
+            echo "data_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "data_changed=false" >> $GITHUB_OUTPUT
+            echo "No changes to data"
+          fi
 
-      - name: Commit updated models (if changed)
-        if: steps.check_changes.outputs.models_changed == 'true'
+      - name: Commit updated data (if changed)
+        if: steps.check_changes.outputs.data_changed == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add src/models.js
-          git commit -m "🤖 Auto-update GitHub Copilot model multipliers
+          git add src/models.js src/plans.js
+          
+          commit_msg="🤖 Auto-update GitHub Copilot data
 
-          - Updated model data from GitHub documentation
+          - Updated data from GitHub documentation
           - Triggered by scheduled workflow on $(date -u +"%Y-%m-%d %H:%M UTC")"
+          
+          if [ "${{ steps.check_changes.outputs.models_changed }}" = "true" ]; then
+            commit_msg="$commit_msg
+          - ✅ Model multipliers updated"
+          fi
+          
+          if [ "${{ steps.check_changes.outputs.plans_changed }}" = "true" ]; then
+            commit_msg="$commit_msg
+          - ✅ Plans/features updated"
+          fi
+          
+          git commit -m "$commit_msg"
           git push
 
       - name: Build project
@@ -88,7 +118,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Site URL**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Status**: ✅ Success" >> $GITHUB_STEP_SUMMARY
-          echo "- **Model Updates**: ${{ steps.check_changes.outputs.models_changed == 'true' && '✅ Updated' || '⏸️ No changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Data Updates**: ${{ steps.check_changes.outputs.data_changed == 'true' && '✅ Updated' || '⏸️ No changes' }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_changes.outputs.models_changed }}" = "true" ]; then
+            echo "  - Models: ✅ Updated" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ steps.check_changes.outputs.plans_changed }}" = "true" ]; then
+            echo "  - Plans/Features: ✅ Updated" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "- **Deployment Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Build Metrics" >> $GITHUB_STEP_SUMMARY

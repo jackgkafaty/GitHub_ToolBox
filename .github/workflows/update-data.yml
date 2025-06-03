@@ -1,0 +1,94 @@
+name: Update GitHub Copilot Data
+
+on:
+  # Run daily at 2 AM UTC to check for updates
+  schedule:
+    - cron: '0 2 * * *'
+  
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update model multipliers and plans
+        run: |
+          npm run fetch-models
+          npm run fetch-plans
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          # Check if either models.js or plans.js have changed
+          models_changed=false
+          plans_changed=false
+          
+          if ! git diff --quiet src/models.js; then
+            models_changed=true
+            echo "Changes detected in model multipliers"
+          fi
+          
+          if ! git diff --quiet src/plans.js; then
+            plans_changed=true
+            echo "Changes detected in plans/features"
+          fi
+          
+          if [ "$models_changed" = true ] || [ "$plans_changed" = true ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "### Changes:" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$models_changed" = true ]; then
+              echo "**Model Multipliers Updated:**" >> $GITHUB_STEP_SUMMARY
+              git diff --no-index /dev/null src/models.js | grep "^+" | head -10 >> $GITHUB_STEP_SUMMARY || true
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            if [ "$plans_changed" = true ]; then
+              echo "**Plans/Features Updated:**" >> $GITHUB_STEP_SUMMARY
+              git diff --no-index /dev/null src/plans.js | grep "^+" | head -10 >> $GITHUB_STEP_SUMMARY || true
+            fi
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in models or plans"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action - Data Updater"
+          git add src/models.js src/plans.js
+          git commit -m "📊 Update GitHub Copilot data
+
+          Auto-updated from GitHub documentation
+          Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          
+          [skip ci]"
+          git push
+
+      - name: Create summary
+        run: |
+          echo "## 📊 GitHub Copilot Data Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ steps.check_changes.outputs.has_changes == 'true' && '✅ Data Updated' || '⏸️ No Changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Check Time**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+          echo "- **Next Check**: $(date -u -d '+1 day' +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY

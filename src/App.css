@@ -1324,12 +1324,16 @@ input[type="number"]:hover {
   }
 }
 
-/* Feature Comparison Styles - Simple Table Layout */
+/* Feature Comparison Styles - Enhanced Dark Layout */
 .feature-comparison-container {
-  max-width: 1200px;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
-  background: transparent;
+  padding: 3rem 2rem;
+  min-height: 100vh;
+  border-radius: 0;
 }
 
 .feature-comparison-header {
@@ -1342,10 +1346,10 @@ input[type="number"]:hover {
   font-weight: 700;
   margin: 0 0 1rem 0;
   color: #e6edf3;
-  background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
 }
 
 .feature-comparison-subtitle {
@@ -1468,9 +1472,11 @@ input[type="number"]:hover {
 }
 
 .features-table {
-  background: transparent;
-  border-radius: 12px;
-  border: 1px solid rgba(48, 54, 61, 0.2);
+  background: rgba(22, 27, 34, 0.8) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(12px) !important;
+  border-radius: 16px;
+  border: 1px solid rgba(88, 166, 255, 0.15);
   overflow: hidden;
   margin-top: 4rem;
 }
@@ -1489,7 +1495,7 @@ input[type="number"]:hover {
   margin: 0;
   color: #f0f6fc;
   padding: 1.5rem 2rem;
-  background: rgba(88, 166, 255, 0.01);
+  background: transparent;
   border-bottom: 1px solid rgba(48, 54, 61, 0.1);
 }
 
@@ -1504,13 +1510,18 @@ input[type="number"]:hover {
   align-items: stretch;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid rgba(48, 54, 61, 0.2);
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   min-height: 4.5rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.feature-grid-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .feature-grid-row:first-child {
-  background: rgba(88, 166, 255, 0.01);
-  border-bottom: 2px solid rgba(88, 166, 255, 0.15);
+  background: transparent;
+  border-bottom: 2px solid rgba(88, 166, 255, 0.25);
   font-weight: 700;
   padding: 1.5rem 2rem;
 }
@@ -1522,7 +1533,8 @@ input[type="number"]:hover {
 }
 
 .feature-grid-row:hover:not(:first-child) {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(88, 166, 255, 0.2);
 }
 
 .feature-grid-row:last-child {
@@ -1535,6 +1547,12 @@ input[type="number"]:hover {
   font-size: 1rem;
   line-height: 1.5;
   padding-right: 1rem;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  border: none;
+  display: flex;
+  align-items: center;
 }
 
 .feature-cell {
@@ -1553,10 +1571,12 @@ input[type="number"]:hover {
   overflow-wrap: break-word;
   hyphens: auto;
   white-space: normal;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .feature-highlight {
-  background: rgba(88, 166, 255, 0.1);
+  background: transparent;
   border: 1px solid rgba(88, 166, 255, 0.2);
   color: #58a6ff;
   font-weight: 600;
@@ -1564,9 +1584,9 @@ input[type="number"]:hover {
 }
 
 .feature-included {
-  color: #3fb950 !important;
-  background: rgba(63, 185, 80, 0.15) !important;
-  border: 1px solid rgba(63, 185, 80, 0.3) !important;
+  color: #fff !important;
+  background: rgba(63, 185, 80, 0.08) !important;
+  border: 1px solid rgba(63, 185, 80, 0.2) !important;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -1574,30 +1594,30 @@ input[type="number"]:hover {
 }
 
 .feature-included svg {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   color: #3fb950 !important;
 }
 
 .feature-not-included {
-  color: #8b949e !important;
-  background: rgba(139, 148, 158, 0.08) !important;
-  border: 1px solid rgba(139, 148, 158, 0.15) !important;
+  color: #6e7681 !important;
+  background: rgba(110, 118, 129, 0.05) !important;
+  border: 1px solid rgba(110, 118, 129, 0.15) !important;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .feature-not-included svg {
-  width: 16px;
-  height: 16px;
-  color: #8b949e !important;
+  width: 20px;
+  height: 20px;
+  color: #6e7681 !important;
 }
 
 .feature-custom {
   color: #58a6ff !important;
-  background: rgba(88, 166, 255, 0.12) !important;
-  border: 1px solid rgba(88, 166, 255, 0.25) !important;
+  background: rgba(88, 166, 255, 0.08) !important;
+  border: 1px solid rgba(88, 166, 255, 0.3) !important;
   font-size: 0.75rem;
   line-height: 1.2;
   font-weight: 500;
@@ -1659,6 +1679,11 @@ input[type="number"]:hover {
     gap: 0.5rem;
     padding: 0.8rem 1rem;
     min-height: 5rem;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  .feature-grid-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.035);
   }
   
   .feature-label {
@@ -1679,6 +1704,7 @@ input[type="number"]:hover {
   .category-title {
     font-size: 1.1rem;
     padding: 1.2rem 1.5rem;
+    background: transparent;
   }
 }
 
@@ -1696,6 +1722,11 @@ input[type="number"]:hover {
     gap: 0.4rem;
     padding: 0.7rem 0.8rem;
     min-height: 4.5rem;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  .feature-grid-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.035);
   }
   
   .feature-label {
@@ -1734,6 +1765,11 @@ input[type="number"]:hover {
     padding: 0.6rem 0.8rem;
     font-size: 0.8rem;
     min-height: 4rem;
+    background: rgba(255, 255, 255, 0.02);
+  }
+  
+  .feature-grid-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.035);
   }
   
   .feature-label {
@@ -1755,6 +1791,7 @@ input[type="number"]:hover {
   .category-title {
     font-size: 1rem;
     padding: 1rem;
+    background: transparent;
   }
   
   .preview-badge {
@@ -1911,7 +1948,7 @@ input[type="number"]:hover {
 
 /* Feature Header Row */
 .feature-header-row {
-  background: rgba(88, 166, 255, 0.01) !important;
+  background: transparent !important;
   border-bottom: 2px solid rgba(88, 166, 255, 0.2) !important;
   font-weight: 700;
   padding: 1.5rem 2rem !important;
@@ -1925,18 +1962,18 @@ input[type="number"]:hover {
 
 /* Column Highlighting */
 .feature-column-highlighted {
-  background: rgba(88, 166, 255, 0.15) !important;
-  border: 2px solid rgba(88, 166, 255, 0.4) !important;
+  background: rgba(88, 166, 255, 0.25) !important;
+  border: 2px solid rgba(88, 166, 255, 0.6) !important;
   color: #58a6ff !important;
   font-weight: 600 !important;
-  box-shadow: 0 0 15px rgba(88, 166, 255, 0.3) !important;
+  box-shadow: 0 0 20px rgba(88, 166, 255, 0.4) !important;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .feature-column-dimmed {
-  opacity: 0.4 !important;
-  background: rgba(255, 255, 255, 0.02) !important;
+  opacity: 0.35 !important;
+  background: rgba(255, 255, 255, 0.01) !important;
   transition: opacity 0.3s ease !important;
 }
 

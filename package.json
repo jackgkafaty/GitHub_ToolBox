@@ -6,8 +6,9 @@
   "homepage": "https://jackgkafaty.github.io/GitHubCopilot_PremiumRequests",
   "scripts": {
     "dev": "vite",
-    "build": "npm run fetch-models && vite build",
+    "build": "npm run fetch-models && npm run fetch-plans && vite build",
     "fetch-models": "node scripts/fetch-models.js",
+    "fetch-plans": "node scripts/fetch-plans.js",
     "deploy": "npm run build && gh-pages -d dist",
     "lint": "eslint .",
     "preview": "vite preview"
