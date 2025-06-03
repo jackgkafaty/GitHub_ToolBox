@@ -434,6 +434,9 @@ input[type="number"]:hover {
   font-weight: 600;
   color: #e6edf3;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .formula-operator {
@@ -447,6 +450,107 @@ input[type="number"]:hover {
   background: #6e5cff;
   color: #fff;
   border: 1px solid #6e5cff;
+}
+
+/* Model breakdown specific styles */
+.formula-breakdown h5 {
+  text-align: left !important;
+}
+
+.formula-breakdown-container {
+  margin-bottom: 1.5rem;
+}
+
+.formula-breakdown-container:last-child {
+  margin-bottom: 1rem;
+}
+
+/* Prevent text wrapping in total row */
+.formula-part[style*="whiteSpace: nowrap"] {
+  white-space: nowrap !important;
+  min-width: fit-content;
+}
+
+/* Total Premium Used Section */
+.total-premium-section {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.total-premium-card {
+  background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+  border: 1px solid #6e5cff;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 12px 40px rgba(88, 166, 255, 0.25);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: none;
+  transform: translateY(-2px);
+}
+
+.total-premium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #58a6ff, #6e5cff, #7c3aed);
+  border-radius: 12px 12px 0 0;
+}
+
+.total-premium-row {
+  display: grid;
+  grid-template-columns: 2fr 0.04fr 1fr 0.04fr 1fr 0.04fr 1.1fr;
+  align-items: center;
+  justify-items: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  gap: 0;
+}
+
+.total-premium-label {
+  color: #e6edf3;
+  font-weight: 600;
+  justify-self: start;
+  grid-column: 1;
+  white-space: nowrap;
+  min-width: max-content;
+}
+
+.total-premium-spacer {
+  grid-column: auto;
+}
+
+.total-premium-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  justify-self: center;
+  grid-column: 7;
+  color: #58a6ff;
+  white-space: nowrap;
+  font-size: 1.15rem;
+}
+
+@media (max-width: 900px) {
+  .total-premium-row {
+    grid-template-columns: 2fr 0.08fr 1fr 0.08fr 1fr 0.08fr 1.1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .total-premium-card {
+    padding: 0.875rem 1.25rem;
+  }
+  
+  .total-premium-row {
+    font-size: 1.1rem;
+    grid-template-columns: 2fr 0.12fr 1fr 0.12fr 1fr 0.12fr 1.1fr;
+  }
 }
 
 @media (max-width: 900px) {

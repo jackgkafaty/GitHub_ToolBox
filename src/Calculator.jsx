@@ -1,5 +1,6 @@
 import { models, ADDITIONAL_REQUEST_COST } from "./models";
 import { useState } from "react";
+import Select from 'react-select';
 
 export default function Calculator() {
   const plans = [
@@ -34,19 +35,44 @@ export default function Calculator() {
   ];
 
   const [selectedPlan, setSelectedPlan] = useState(plans[0]);
-  const [selectedModel, setSelectedModel] = useState(models[0]);
+  const [selectedModels, setSelectedModels] = useState([models[0]]);
   const [requestCount, setRequestCount] = useState("");
   const [developerCount, setDeveloperCount] = useState(1);
   const [overage, setOverage] = useState(0);
 
+  // Create options for react-select with colors
+  const modelOptions = models.map((model, index) => ({
+    value: model,
+    label: model.name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : model.name,
+    color: `hsl(${(index * 137.5) % 360}, 70%, 60%)` // Generate distinct colors
+  }));
+
   const getMultiplier = () => {
-    if (selectedModel.name === "Base model (GPT-4.1)") {
-      return 0;
+    if (selectedModels.length === 1) {
+      const model = selectedModels[0];
+      if (model.name === "Base model (GPT-4.1)") {
+        return 0;
+      }
+      return model.multiplier;
     }
-    return selectedModel.multiplier;
+    // For multiple models, return null to indicate "see details below"
+    return null;
   };
 
-  const premiumUsed = (requestCount || 0) * getMultiplier() * (developerCount || 1);
+  const calculatePremiumUsed = () => {
+    if (selectedModels.length === 1) {
+      const multiplier = selectedModels[0].name === "Base model (GPT-4.1)" ? 0 : selectedModels[0].multiplier;
+      return (requestCount || 0) * multiplier * (developerCount || 1);
+    }
+    
+    // For multiple models, use the same number of requests for each model
+    return selectedModels.reduce((total, model) => {
+      const multiplier = model.name === "Base model (GPT-4.1)" ? 0 : model.multiplier;
+      return total + ((requestCount || 0) * multiplier * (developerCount || 1));
+    }, 0);
+  };
+
+  const premiumUsed = calculatePremiumUsed();
   const included = selectedPlan.allowance * (developerCount || 1);
   const overageRequests = Math.max(0, premiumUsed - included);
   const overageCost = overageRequests * ADDITIONAL_REQUEST_COST;
@@ -69,16 +95,90 @@ export default function Calculator() {
         <div className="form-column">
           <label>
             Model:
-            <select
-              value={models.indexOf(selectedModel)}
-              onChange={e => setSelectedModel(models[e.target.value])}
-            >
-              {models.map((m, i) => (
-                <option key={i} value={i}>
-                  {m.name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : m.name}
-                </option>
-              ))}
-            </select>
+            <Select
+              isMulti
+              value={selectedModels.map(model => modelOptions.find(opt => opt.value === model))}
+              onChange={(selectedOptions) => {
+                if (selectedOptions && selectedOptions.length > 0) {
+                  setSelectedModels(selectedOptions.map(opt => opt.value));
+                } else {
+                  // If no models selected, default to base model
+                  setSelectedModels([models[0]]);
+                }
+              }}
+              options={modelOptions}
+              styles={{
+                control: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  borderColor: state.isFocused ? '#7c3aed' : '#30363d',
+                  color: '#e6edf3',
+                  minHeight: '44px',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  borderRadius: '8px',
+                  border: '1px solid #30363d',
+                  boxShadow: state.isFocused ? '0 0 0 3px rgba(124, 58, 237, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.12)',
+                  '&:hover': {
+                    borderColor: '#7c3aed',
+                    backgroundColor: '#0d1117'
+                  }
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  border: '1px solid #30363d',
+                  borderRadius: '8px',
+                  zIndex: 9999
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isSelected 
+                    ? '#7c3aed' 
+                    : state.isFocused 
+                      ? '#21262c' 
+                      : '#161b22',
+                  color: '#e6edf3',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#21262c'
+                  }
+                }),
+                multiValue: (provided, { data }) => ({
+                  ...provided,
+                  backgroundColor: data.color + '20',
+                  borderRadius: '4px',
+                  border: `1px solid ${data.color}`
+                }),
+                multiValueLabel: (provided, { data }) => ({
+                  ...provided,
+                  color: '#e6edf3',
+                  fontSize: '0.9rem',
+                  fontWeight: '500'
+                }),
+                multiValueRemove: (provided, { data }) => ({
+                  ...provided,
+                  color: data.color,
+                  '&:hover': {
+                    backgroundColor: data.color + '40',
+                    color: '#ffffff'
+                  }
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: '#7d8590'
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
+                }),
+                input: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
+                })
+              }}
+              placeholder="Select models..."
+            />
           </label>
         </div>
       </div>
@@ -147,20 +247,26 @@ export default function Calculator() {
             <div className="model-detail-row">
               <span className="model-detail-label">Model Name:</span>
               <span className="model-detail-value">
-                {selectedModel.name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : selectedModel.name}
+                {selectedModels.length === 1 
+                  ? (selectedModels[0].name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : selectedModels[0].name)
+                  : "Multiple Selected*"
+                }
               </span>
             </div>
             <div className="model-detail-row">
               <span className="model-detail-label">Multiplier:</span>
               <span className="model-detail-value">
-                {getMultiplier() === 0 ? "Unlimited" : getMultiplier()}
+                {selectedModels.length === 1
+                  ? (getMultiplier() === 0 ? "Unlimited" : getMultiplier())
+                  : "see details below*"
+                }
               </span>
             </div>
-            {selectedModel.note && selectedModel.name !== "Base model (GPT-4.1)" && (
+            {selectedModels.length === 1 && selectedModels[0].note && selectedModels[0].name !== "Base model (GPT-4.1)" && (
               <div className="model-detail-row">
                 <span className="model-detail-label">Note:</span>
                 <span className="model-detail-value">
-                  {selectedModel.note}
+                  {selectedModels[0].note}
                 </span>
               </div>
             )}
@@ -172,39 +278,126 @@ export default function Calculator() {
       <div className="multiplier-section">
         <div className="multiplier-info">
           <div className="multiplier-header">
-            <h3>Model Multiplier</h3>
-            {getMultiplier() === 0 ? null : (
+            <h3>
+              {selectedModels.length === 1 ? "Model Multiplier" : "Model Multiplier Breakdown"}
+            </h3>
+            {selectedModels.length === 1 && getMultiplier() !== 0 && (
               <div className="multiplier-value">{getMultiplier()}</div>
             )}
           </div>
-          {getMultiplier() === 0 ? (
-            <div className="unlimited-section">
-              <div className="unlimited-icon">∞</div>
-              <div className="unlimited-text">Unlimited</div>
-              <div className="unlimited-description">Base model requests don't count against your premium request allowance</div>
-            </div>
-          ) : (
-            <div className="multiplier-explanation">
-              <p>Each request to this model uses <strong>{getMultiplier()}</strong> premium requests from your allowance.</p>
-              <div className="formula-display">
-                <h4>Formula:</h4>
-                <div className="formula formula-aligned">
-                  <span className="formula-part">{requestCount || 0}</span>
-                  <span className="formula-operator">×</span>
-                  <span className="formula-part">{getMultiplier()}</span>
-                  <span className="formula-operator">×</span>
-                  <span className="formula-part">{developerCount || 1}</span>
-                  <span className="formula-operator">=</span>
-                  <span className="formula-result">{premiumUsed.toLocaleString()}</span>
+          {selectedModels.length === 1 ? (
+            // Single model display
+            getMultiplier() === 0 ? (
+              <div className="unlimited-section">
+                <div className="unlimited-icon">∞</div>
+                <div className="unlimited-text">Unlimited</div>
+                <div className="unlimited-description">Base model requests don't count against your premium request allowance</div>
+              </div>
+            ) : (
+              <div className="multiplier-explanation">
+                <p>Each request to this model uses <strong>{getMultiplier()}</strong> premium requests from your allowance.</p>
+                <div className="formula-display">
+                  <h4>Formula:</h4>
+                  <div className="formula formula-aligned">
+                    <span className="formula-part">{requestCount || 0}</span>
+                    <span className="formula-operator">×</span>
+                    <span className="formula-part">{getMultiplier()}</span>
+                    <span className="formula-operator">×</span>
+                    <span className="formula-part">{developerCount || 1}</span>
+                    <span className="formula-operator">=</span>
+                    <span className="formula-result">{premiumUsed.toLocaleString()}</span>
+                  </div>
+                  <div className="formula-labels formula-aligned">
+                    <span className="formula-label">Requests</span>
+                    <span className="formula-label blank"></span>
+                    <span className="formula-label">Multiplier</span>
+                    <span className="formula-label blank"></span>
+                    <span className="formula-label">Developers</span>
+                    <span className="formula-label blank"></span>
+                    <span className="formula-label">Premium Used</span>
+                  </div>
                 </div>
-                <div className="formula-labels formula-aligned">
-                  <span className="formula-label">Requests</span>
-                  <span className="formula-label blank"></span>
-                  <span className="formula-label">Multiplier</span>
-                  <span className="formula-label blank"></span>
-                  <span className="formula-label">Developers</span>
-                  <span className="formula-label blank"></span>
-                  <span className="formula-label">Premium Used</span>
+              </div>
+            )
+          ) : (
+            // Multiple models display
+            <div className="multiplier-explanation">
+              <div className="formula-display">
+                {selectedModels.map((model, index) => {
+                  const color = modelOptions.find(opt => opt.value === model)?.color || '#58a6ff';
+                  const multiplier = model.name === "Base model (GPT-4.1)" ? 0 : model.multiplier;
+                  const premiumForModel = (requestCount || 0) * multiplier * (developerCount || 1);
+                  
+                  return (
+                    <div key={index} className="formula-breakdown-container" style={{ 
+                      marginBottom: index === selectedModels.length - 1 ? '1rem' : '1.5rem',
+                      paddingBottom: index === selectedModels.length - 1 ? '0' : '1rem',
+                      borderBottom: index === selectedModels.length - 1 ? 'none' : '1px solid #30363d'
+                    }}>
+                      <h5 style={{ color: color, margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: '600', textAlign: 'left' }}>
+                        {model.name === "Base model (GPT-4.1)" ? "Base (GPT-4.1)" : model.name}
+                      </h5>
+                      {multiplier === 0 ? (
+                        <>
+                          <div className="formula formula-aligned" style={{ fontSize: '0.9rem' }}>
+                            <span className="formula-part">{(requestCount || 0)}</span>
+                            <span className="formula-operator">×</span>
+                            <span className="formula-part">0</span>
+                            <span className="formula-operator">×</span>
+                            <span className="formula-part">{developerCount || 1}</span>
+                            <span className="formula-operator">=</span>
+                            <span className="formula-result">0</span>
+                          </div>
+                          <div className="formula-labels formula-aligned">
+                            <span className="formula-label">Requests</span>
+                            <span className="formula-label blank"></span>
+                            <span className="formula-label">Multiplier</span>
+                            <span className="formula-label blank"></span>
+                            <span className="formula-label">Developers</span>
+                            <span className="formula-label blank"></span>
+                            <span className="formula-label">Premium Used</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="formula formula-aligned" style={{ fontSize: '0.9rem' }}>
+                            <span className="formula-part">{(requestCount || 0)}</span>
+                            <span className="formula-operator">×</span>
+                            <span className="formula-part">{multiplier}</span>
+                            <span className="formula-operator">×</span>
+                            <span className="formula-part">{developerCount || 1}</span>
+                            <span className="formula-operator">=</span>
+                            <span className="formula-result">{premiumForModel.toLocaleString()}</span>
+                          </div>
+                          <div className="formula-labels formula-aligned">
+                            <span className="formula-label">Requests</span>
+                            <span className="formula-label blank"></span>
+                            <span className="formula-label">Multiplier</span>
+                            <span className="formula-label blank"></span>
+                            <span className="formula-label">Developers</span>
+                            <span className="formula-label blank"></span>
+                            <span className="formula-label">Premium Used</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Total Premium Request with breakdown style */}
+              <div className="total-premium-section">
+                <div className="total-premium-card">
+                  <div className="total-premium-row">
+                    <span className="total-premium-label">Total Premium Request:</span>
+                    <span className="total-premium-spacer"></span>
+                    <span className="total-premium-spacer"></span>
+                    <span className="total-premium-spacer"></span>
+                    <span className="total-premium-spacer"></span>
+                    <span className="total-premium-spacer"></span>
+                    <span className="total-premium-value">
+                      {premiumUsed.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
