@@ -48,7 +48,7 @@ export default function App() {
   };
 
   const premiumUsed = (requestCount || 0) * getMultiplier() * (developerCount || 1);
-  const included = selectedPlan.allowance;
+  const included = selectedPlan.allowance * (developerCount || 1);
   const overageRequests = Math.max(0, premiumUsed - included);
   const overageCost = overageRequests * ADDITIONAL_REQUEST_COST;
 
