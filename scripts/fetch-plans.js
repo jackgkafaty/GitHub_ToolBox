@@ -1,104 +1,227 @@
 #!/usr/bin/env node
 
-// Script to generate GitHub Copilot plans data based on official GitHub documentation
-// This uses manually curated data that matches the official GitHub docs exactly
-// Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot#comparing-copilot-plans
+// Script to dynamically generate GitHub Copilot plans data from the official GitHub documentation
+// Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 import fs from 'fs';
 import path from 'path';
+import fetch from 'node-fetch';
+import * as cheerio from 'cheerio';
 
 const GITHUB_PLANS_URL = 'https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot';
 const PLANS_FILE_PATH = path.join(process.cwd(), 'src', 'plans.js');
 
 /**
- * Fetches the GitHub Copilot plans data from GitHub docs
+ * Determines if a feature is included in a plan based on the cell content
+ * @param {Object} $ - Cheerio instance
+ * @param {Element} cell - The table cell element
+ * @returns {string} - 'yes', 'no', or the text content
+ */
+function parseFeatureValue($, cell) {
+  // Check if cell contains a checkmark
+  if ($(cell).find('.octicon-check').length > 0) {
+    return 'yes';
+  } 
+  // Check if cell contains an x mark
+  else if ($(cell).find('.octicon-x').length > 0) {
+    return 'no';
+  }
+  // Otherwise return the text content
+  else {
+    return $(cell).text().trim();
+  }
+}
+
+/**
+ * Fetches and parses the GitHub Copilot plans data from the official documentation
  */
 async function fetchPlansData() {
   try {
-    console.log('🚀 Using official GitHub Copilot plans data...');
+    console.log('🚀 Fetching GitHub Copilot plans data from official documentation...');
+
+    const response = await fetch(GITHUB_PLANS_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // Initialize arrays to hold plan details and feature categories
+    const plans = [];
+    const featureCategories = [];
+
+    // Get the plan names from the first table in the document
+    // This avoids duplicating plan names from each feature category section
+    const planNames = [];
+    const firstTable = $('.ghd-tool table').first();
+    $(firstTable).find('thead tr th').each((index, element) => {
+      if (index === 0) return; // Skip the first header cell (empty or "Features" column)
+      const planName = $(element).text().trim();
+      planNames.push(planName);
+    });
+
+    // Create plan objects with basic info
+    planNames.forEach(name => {
+      plans.push({
+        name,
+        price: '', // Will be filled below when we process the pricing row
+        billing: '',
+        description: '',
+        popular: name.includes('Pro+') || name.includes('Business'), // Marking Pro+ and Business as popular
+        buttonText: 'Learn more',
+        githubUrl: 'https://github.com/features/copilot'
+      });
+    });
     
-    // For now, use the manually curated data that matches the official GitHub docs
-    // since their HTML table structure is complex and doesn't include proper feature names
-    const plansData = getFallbackPlansData();
+    // Process the pricing row from the first table to get price information
+    const pricingRow = $(firstTable).find('tbody tr').first();
+    if ($(pricingRow).find('th').text().trim() === 'Pricing') {
+      $(pricingRow).find('td').each((colIndex, col) => {
+        if (plans[colIndex]) {
+          const priceText = $(col).text().trim();
+          plans[colIndex].price = priceText.split(' per ')[0] || priceText;
+          plans[colIndex].billing = priceText.includes('per month') ? 'monthly' : 
+                                    priceText.includes('per year') ? 'yearly' : '';
+        }
+      });
+    }
+
+    // Find all feature category sections
+    // Each section starts with an h3 heading and contains a table
+    // Keep track of processed categories to avoid duplicates
+    const processedCategories = new Set();
     
-    console.log('✓ Successfully loaded plans data based on GitHub docs');
-    return plansData;
-    
+    $('h3').each((headingIndex, heading) => {
+      const categoryName = $(heading).text().trim();
+      
+      // Skip if already processed this category
+      if (processedCategories.has(categoryName)) return;
+      processedCategories.add(categoryName);
+      
+      const table = $(heading).next('.ghd-tool').find('table');
+      
+      // Skip if no table found
+      if (table.length === 0) return;
+
+      const features = [];
+      
+      // Process each row in the table
+      $(table).find('tbody tr').each((rowIndex, row) => {
+        const featureName = $(row).find('th').text().trim();
+        const values = [];
+        
+        // Process each column (skipping the feature name column)
+        $(row).find('td').each((colIndex, col) => {
+          // Get value as yes/no or text
+          const value = parseFeatureValue($, col);
+          values.push(value);
+          
+          // If this is the pricing row, update the plan details
+          if (featureName === 'Pricing' && plans[colIndex]) {
+            plans[colIndex].price = value.split(' per ')[0] || value;
+            plans[colIndex].billing = value.includes('per month') ? 'monthly' : 
+                                      value.includes('per year') ? 'yearly' : '';
+          }
+        });
+        
+        features.push({
+          name: featureName,
+          values: values
+        });
+      });
+
+      // Add feature category only if it has features
+      if (features.length > 0) {
+        featureCategories.push({
+          name: categoryName,
+          features: features
+        });
+      }
+    });
+
+    // Update plan prices and other details based on known information
+    // Since the documentation may not include all details, you might need to supplement this data manually or from another source
+
+    console.log('✓ Successfully fetched and parsed plans data');
+    return {
+      plans,
+      featureCategories,
+      lastUpdated: new Date().toISOString()
+    };
+
   } catch (error) {
-    console.error('❌ Failed to load plans data:', error.message);
+    console.error('❌ Failed to fetch plans data:', error.message);
     return getFallbackPlansData();
   }
 }
 
-
-
 /**
- * Get accurate plans data based on official GitHub documentation
- * Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot#comparing-copilot-plans
+ * Fallback plans data in case fetching from the official documentation fails
  */
 function getFallbackPlansData() {
-  // Define the expected plan structure based on the documentation
+  console.log('🚀 Using default GitHub Copilot plans data...');
+  
+  // Default plan details
   const plans = [
     {
       name: 'Free',
       price: '$0',
       billing: 'Forever',
-      description: 'For personal use',
+      description: 'Basic AI coding assistance',
       popular: false,
       buttonText: 'Get started',
-      githubUrl: 'https://github.com/copilot'
+      githubUrl: 'https://github.com/features/copilot'
     },
     {
       name: 'Pro',
       price: '$10',
-      billing: 'per user/month',
-      description: 'For individual developers',
-      popular: false,
-      buttonText: 'Start free trial',
-      githubUrl: 'https://github.com/github-copilot/signup?ref_cta=Copilot+trial&ref_loc=about+github+copilot&ref_page=docs'
+      billing: 'monthly',
+      description: 'AI pair programmer for individual developers',
+      popular: true,
+      buttonText: 'Subscribe now',
+      githubUrl: 'https://github.com/features/copilot'
     },
     {
       name: 'Pro+',
       price: '$39',
-      billing: 'per user/month',
-      description: 'For power users and professionals',
-      popular: false,
-      buttonText: 'Start free trial',
-      githubUrl: 'https://github.com/github-copilot/signup?ref_cta=Copilot+Pro%2B&ref_loc=subscriptions+page&ref_page=docs'
+      billing: 'monthly',
+      description: 'Premium AI pair programmer for individual developers',
+      popular: true,
+      buttonText: 'Subscribe now',
+      githubUrl: 'https://github.com/features/copilot'
     },
     {
       name: 'Business',
       price: '$19',
-      billing: 'per user/month',
-      description: 'For teams and organizations',
-      popular: false,
-      buttonText: 'Start free trial',
-      githubUrl: 'https://github.com/github-copilot/purchase?priority=business&cft=copilot_li.copilot_plans.cfb'
+      billing: 'monthly',
+      description: 'AI pair programmer for teams',
+      popular: true,
+      buttonText: 'Contact sales',
+      githubUrl: 'https://github.com/features/copilot'
     },
     {
       name: 'Enterprise',
       price: '$39',
-      billing: 'per user/month',
-      description: 'For large enterprises',
+      billing: 'monthly',
+      description: 'Enhanced security and compliance',
       popular: false,
-      buttonText: 'Get started',
-      githubUrl: 'https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce'
+      buttonText: 'Contact sales',
+      githubUrl: 'https://github.com/features/copilot'
     }
   ];
 
-  // Based on official GitHub docs: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot#comparing-copilot-plans
-  // Only includes features that actually exist in the GitHub documentation
+  // Default feature categories
   const featureCategories = [
     {
       name: 'Premium requests',
       features: [
         {
-          name: 'Premium requests per month',
+          name: 'Premium requests',
           values: ['50 per month', '300 per month', '1500 per month', '300 per user per month', '1000 per user per month']
         },
         {
-          name: 'Purchase additional premium requests',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
+          name: 'Purchase additional premium requests at $0.04/request',
+          values: ['no', 'yes', 'yes', 'yes', 'yes']
         }
       ]
     },
@@ -106,57 +229,20 @@ function getFallbackPlansData() {
       name: 'Agents',
       features: [
         {
-          name: 'Copilot coding agent',
-          values: ['Not included', 'Not included', 'Included', 'Not included', 'Included']
+          name: 'Copilot coding agent (public preview)',
+          values: ['no', 'no', 'yes', 'no', 'yes']
         },
         {
           name: 'Agent mode in VS Code',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
+          values: ['yes', 'yes', 'yes', 'yes', 'yes']
         },
         {
           name: 'Copilot code review',
-          values: ['Only "Review selection" in VS Code', 'Included', 'Included', 'Included', 'Included']
+          values: ['Only "Review selection" in VS Code', 'yes', 'yes', 'yes', 'yes']
         },
         {
           name: 'Copilot Extensions',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        }
-      ]
-    },
-    {
-      name: 'Chat',
-      features: [
-        {
-          name: 'Copilot Chat in IDEs',
-          values: ['50 messages per month', 'Unlimited with base model', 'Unlimited with base model', 'Unlimited with base model', 'Unlimited with base model']
-        },
-        {
-          name: 'Copilot Chat in GitHub',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Copilot Chat in GitHub Mobile',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Copilot Chat in Windows Terminal',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Inline chat in IDEs',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Slash commands',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Increased GitHub Models rate limits',
-          values: ['Not included', 'Not included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Copilot Chat skills in IDEs',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
+          values: ['yes', 'yes', 'yes', 'yes', 'yes']
         }
       ]
     },
@@ -164,135 +250,8 @@ function getFallbackPlansData() {
       name: 'Models',
       features: [
         {
-          name: 'GPT-4o',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Claude 3.5 Sonnet',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Claude 3.5 Haiku',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Claude 3 Opus',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Claude 3 Sonnet',
-          values: ['Not included', 'Not included', 'Included', 'Not included', 'Included']
-        },
-        {
-          name: 'Gemini 1.5 Pro',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Gemini 1.5 Flash',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'GPT-4',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'GPT-4 Turbo',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'GPT-4o mini',
-          values: ['Not included', 'Not included', 'Included', 'Not included', 'Included']
-        },
-        {
-          name: 'o1-preview',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'o1-mini',
-          values: ['Not included', 'Not included', 'Included', 'Not included', 'Included']
-        },
-        {
-          name: 'o4-mini',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'o3-mini',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        }
-      ]
-    },
-    {
-      name: 'Code completion',
-      features: [
-        {
-          name: 'Real-time code suggestions with the base model',
-          values: ['2000 completions per month', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Next edit suggestions',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        }
-      ]
-    },
-    {
-      name: 'Customization',
-      features: [
-        {
-          name: 'Repository-level custom instructions',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Fine tuning',
-          values: ['Not included', 'Not included', 'Not included', 'Not included', 'Included']
-        },
-        {
-          name: 'Personal custom instructions',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Organization custom instructions',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Exclude files',
-          values: ['Not included', 'Not included', 'Not included', 'Not included', 'Included']
-        },
-        {
-          name: 'Organization policy management',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Enterprise organization and custom instructions',
-          values: ['Not included', 'Not included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Enterprise Copilot Chat context',
-          values: ['Not included', 'Not included', 'Included', 'Included', 'Included']
-        }
-      ]
-    },
-    {
-      name: 'Other features',
-      features: [
-        {
-          name: 'Copilot pull request summaries',
-          values: ['Not included', 'Included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Audit logs',
-          values: ['Not included', 'Not included', 'Included', 'Included', 'Included']
-        },
-        {
-          name: 'Copilot knowledge bases',
-          values: ['Not included', 'Not included', 'Not included', 'Not included', 'Included']
-        },
-        {
-          name: 'Fine tuning',
-          values: ['Not included', 'Not included', 'Not included', 'Not included', 'Included']
-        },
-        {
-          name: 'Copilot in the CLI',
-          values: ['Included', 'Included', 'Included', 'Included', 'Included']
+          name: 'Available models in chat',
+          values: ['Limited selection', 'All models', 'All models', 'All models', 'All models']
         }
       ]
     }
@@ -304,8 +263,6 @@ function getFallbackPlansData() {
     lastUpdated: new Date().toISOString()
   };
 }
-
-
 
 /**
  * Updates the plans.js file with new data
@@ -341,7 +298,7 @@ async function main() {
     console.log('');
 
     const plansData = await fetchPlansData();
-    
+
     if (updatePlansFile(plansData)) {
       console.log('');
       console.log('📋 Plans summary:');

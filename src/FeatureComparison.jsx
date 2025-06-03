@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { planDetails, featureCategories } from './plans.js';
 
 const FeatureComparison = () => {
-  const plans = ['Free', 'Pro', 'Pro+', 'Business', 'Enterprise'];
+  const plans = planDetails.map(plan => plan.name.replace('Copilot ', ''));
   const [selectedPlans, setSelectedPlans] = useState([]);
 
   const handlePlanSelect = (index) => {
@@ -19,12 +19,12 @@ const FeatureComparison = () => {
   };
 
   const getFeatureIcon = (value) => {
-    if (value === 'Included') return (
+    if (value === 'yes' || value === 'Included') return (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M7.5 12.5l3 3 6-6" stroke="#3fb950" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     );
-    if (value === 'Not included') return (
+    if (value === 'no' || value === 'Not included') return (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M5 10a.75.75 0 000 1.5h10a.75.75 0 000-1.5H5z" fill="currentColor"/>
       </svg>
@@ -33,8 +33,8 @@ const FeatureComparison = () => {
   };
 
   const getFeatureClass = (value) => {
-    if (value === 'Included') return 'feature-included';
-    if (value === 'Not included') return 'feature-not-included';
+    if (value === 'yes' || value === 'Included') return 'feature-included';
+    if (value === 'no' || value === 'Not included') return 'feature-not-included';
     return 'feature-custom';
   };
 
