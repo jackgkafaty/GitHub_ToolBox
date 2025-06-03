@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://jackgkafaty.github.io/GitHubCopilot_PremiumRequests",
   "scripts": {
     "dev": "vite",
     "build": "npm run fetch-models && vite build",
