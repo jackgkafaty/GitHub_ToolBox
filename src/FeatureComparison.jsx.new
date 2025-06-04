@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import { planDetails, featureCategories } from './plans';
+
+const FeatureComparison = () => {
+  const plans = planDetails.map(plan => plan.name.replace('Copilot ', ''));
+  const [selectedPlans, setSelectedPlans] = useState([]);
+
+  const handlePlanSelect = (index) => {
+    if (selectedPlans.includes(index)) {
+      // Deselect if already selected
+      setSelectedPlans(selectedPlans.filter(i => i !== index));
+    } else {
+      // Select if not already selected (maximum 2)
+      if (selectedPlans.length < 2) {
+        setSelectedPlans([...selectedPlans, index]);
+      }
+    }
+  };
+
+  // Determine which plans to display based on selection
+  const displayPlans = selectedPlans.length > 0 
+    ? planDetails.filter((_, index) => selectedPlans.includes(index))
+    : planDetails;
+
+  // Compact card for plan selection
+  const PlanCardCompact = ({ plan, index, isSelected }) => (
+    <div 
+      className={`plan-card-compact ${isSelected ? 'selected' : ''}`}
+      onClick={() => handlePlanSelect(index)}
+    >
+      <div className="plan-card-header-compact">
+        <h3 className="plan-card-name-compact">{plan.name}</h3>
+        {plan.price && <div className="plan-card-price-compact">{plan.price}</div>}
+        <div className="plan-card-billing-compact">
+          {plan.billing === 'monthly' ? 
+            (plan.name.includes('Business') || plan.name.includes('Enterprise') ? 
+              'per user/month' : 
+              'per user/month') : 
+            plan.billing}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Full feature value cell
+  const FeatureValue = ({ value }) => {
+    if (value === 'yes') {
+      return <div className="feature-value yes">✓</div>;
+    } else if (value === 'no') {
+      return <div className="feature-value no">✗</div>;
+    } else {
+      return <div className="feature-value">{value}</div>;
+    }
+  };
+
+  return (
+    <div className="feature-comparison">
+      <div className="plan-selector">
+        <h2>Compare GitHub Copilot Plans</h2>
+        <p>Select up to 2 plans to compare their features side-by-side</p>
+        <div className="plan-cards-compact">
+          {planDetails.map((plan, index) => (
+            <PlanCardCompact 
+              key={index} 
+              plan={plan} 
+              index={index}
+              isSelected={selectedPlans.includes(index)} 
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="feature-table">
+        <table>
+          <thead>
+            <tr>
+              <th className="feature-name-header">Features</th>
+              {displayPlans.map((plan, index) => (
+                <th key={index} className="plan-header">
+                  <div className="plan-title">{plan.name}</div>
+                  <div className="plan-price">{plan.price}</div>
+                  <div className="plan-billing">
+                    {plan.billing === 'monthly' ? 
+                      (plan.name.includes('Business') || plan.name.includes('Enterprise') ? 
+                        'per user/month' : 
+                        'per month') : 
+                      plan.billing}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {featureCategories.map((category, categoryIndex) => (
+              <React.Fragment key={categoryIndex}>
+                <tr className="category-row">
+                  <td colSpan={displayPlans.length + 1}>{category.name}</td>
+                </tr>
+                {category.features.map((feature, featureIndex) => (
+                  <tr key={`${categoryIndex}-${featureIndex}`} className="feature-row">
+                    <td className="feature-name">{feature.name}</td>
+                    {displayPlans.map((plan, planIndex) => {
+                      const planOriginalIndex = planDetails.findIndex(p => p.name === plan.name);
+                      return (
+                        <td key={planIndex} className="feature-value-cell">
+                          <FeatureValue value={feature.values[planOriginalIndex]} />
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="premium-requests-link">
+        <p>
+          <a href="https://docs.github.com/en/copilot/about-github-copilot/premium-requests-with-github-copilot" target="_blank" rel="noopener noreferrer">
+            Learn more about Premium Requests
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default FeatureComparison;

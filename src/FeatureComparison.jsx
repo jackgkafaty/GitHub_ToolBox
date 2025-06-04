@@ -59,7 +59,7 @@ const FeatureComparison = () => {
             <div className="plan-card-header-compact">
               <h3 className="plan-card-name-compact">{plan.name}</h3>
               <div className="plan-card-price-compact">{plan.price}</div>
-              <div className="plan-card-billing-compact">{plan.billing}</div>
+              <div className="plan-card-billing-compact">per user/month</div>
             </div>
             <a 
               href={plan.githubUrl} 

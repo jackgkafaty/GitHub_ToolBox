@@ -1,6 +1,39 @@
 #!/usr/bin/env node
 
-// Script to generate GitHub Copilot plans data from the official GitHub documentation
+// Script to d// Fetch and parse the GitHub Copilot plans data from the official documentation
+async function fetchPlansData() {
+  try {
+    console.log('🚀 Fetching GitHub Copilot plans data from official documentation...');
+
+    // Fetch the main plans page
+    const response = await fetch(GITHUB_PLANS_URL);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    // Also fetch the signup URLs section
+    console.log('🔍 Searching for GitHub Copilot plan signup URLs...');
+    const planUrlsResponse = await fetch(GITHUB_PLANS_URL);
+    const plansHtml = await planUrlsResponse.text();
+    const urlSection = plansHtml.includes('ready-to-choose-a-plan') ? 
+      plansHtml.split('ready-to-choose-a-plan')[1] : '';
+    
+    // Extract URLs for each plan type
+    const planUrls = {
+      'Copilot Free': 'https://github.com/copilot',
+      'Copilot Pro': 'https://github.com/github-copilot/signup?ref_cta=Copilot+trial&ref_loc=about+github+copilot&ref_page=docs',
+      'Copilot Pro+': 'https://github.com/github-copilot/signup?ref_cta=Copilot+Pro%2B&ref_loc=subscriptions+page&ref_page=docs',
+      'Copilot Business': 'https://github.com/github-copilot/purchase?priority=business&cft=copilot_li.copilot_plans.cfb',
+      'Copilot Enterprise': 'https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce'
+    };
+    
+    // Log the URLs found
+    console.log('✓ Found plan URLs:');
+    Object.entries(planUrls).forEach(([plan, url]) => {
+      console.log(`   ${plan}: ${url}`);
+    });//Renerate GitHub Copilot plans data from the official GitHub documentation
 // Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 import fs from 'fs';
@@ -91,7 +124,7 @@ async function fetchPlansData() {
         billing: '',
         description: '',
         popular: name.includes('Pro+') || name.includes('Business'), // Marking Pro+ and Business as popular
-        buttonText: 'Get started',
+        buttonText: name.includes('Enterprise') ? 'Contact sales' : 'Get started',
         githubUrl: planUrls[name] || 'https://github.com/features/copilot' // Use the URL from our map or default
       });
     });
@@ -254,7 +287,7 @@ function getFallbackPlansData() {
       billing: 'monthly',
       description: 'AI pair programmer for teams',
       popular: true,
-      buttonText: 'Get started',
+      buttonText: 'Contact sales',
       githubUrl: 'https://github.com/github-copilot/purchase?priority=business&cft=copilot_li.copilot_plans.cfb'
     },
     {
@@ -263,7 +296,7 @@ function getFallbackPlansData() {
       billing: 'monthly',
       description: 'Enhanced security and compliance',
       popular: false,
-      buttonText: 'Get started',
+      buttonText: 'Contact sales',
       githubUrl: 'https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce'
     }
   ];

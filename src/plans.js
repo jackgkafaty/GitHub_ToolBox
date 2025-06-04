@@ -1,5 +1,5 @@
 // GitHub Copilot plans and features data
-// Auto-updated from GitHub docs on 2025-06-03T23:57:55.251Z
+// Auto-updated from GitHub docs on 2025-06-04T00:30:12.157Z
 // Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 export const planDetails = [
@@ -9,8 +9,8 @@ export const planDetails = [
     "billing": "",
     "description": "",
     "popular": false,
-    "buttonText": "Learn more",
-    "githubUrl": "https://github.com/features/copilot"
+    "buttonText": "Get started",
+    "githubUrl": "https://github.com/copilot"
   },
   {
     "name": "Copilot Pro",
@@ -18,8 +18,8 @@ export const planDetails = [
     "billing": "monthly",
     "description": "",
     "popular": false,
-    "buttonText": "Learn more",
-    "githubUrl": "https://github.com/features/copilot"
+    "buttonText": "Get started",
+    "githubUrl": "https://github.com/github-copilot/signup?ref_cta=Copilot+trial&ref_loc=about+github+copilot&ref_page=docs"
   },
   {
     "name": "Copilot Pro+",
@@ -27,8 +27,8 @@ export const planDetails = [
     "billing": "monthly",
     "description": "",
     "popular": true,
-    "buttonText": "Learn more",
-    "githubUrl": "https://github.com/features/copilot"
+    "buttonText": "Get started",
+    "githubUrl": "https://github.com/github-copilot/signup?ref_cta=Copilot+Pro%2B&ref_loc=subscriptions+page&ref_page=docs"
   },
   {
     "name": "Copilot Business",
@@ -36,8 +36,8 @@ export const planDetails = [
     "billing": "monthly",
     "description": "",
     "popular": true,
-    "buttonText": "Learn more",
-    "githubUrl": "https://github.com/features/copilot"
+    "buttonText": "Get started",
+    "githubUrl": "https://github.com/github-copilot/purchase?priority=business&cft=copilot_li.copilot_plans.cfb"
   },
   {
     "name": "Copilot Enterprise",
@@ -45,12 +45,37 @@ export const planDetails = [
     "billing": "monthly",
     "description": "",
     "popular": false,
-    "buttonText": "Learn more",
-    "githubUrl": "https://github.com/features/copilot"
+    "buttonText": "Get started",
+    "githubUrl": "https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce"
   }
 ];
 
 export const featureCategories = [
+  {
+    "name": "Premium requests",
+    "features": [
+      {
+        "name": "Premium requests",
+        "values": [
+          "50 per month",
+          "300 per month",
+          "1500 per month",
+          "300 per user per month",
+          "1000 per user per month"
+        ]
+      },
+      {
+        "name": "Purchase additional premium requests at $0.04/request",
+        "values": [
+          "no",
+          "yes",
+          "yes",
+          "yes",
+          "yes"
+        ]
+      }
+    ]
+  },
   {
     "name": "Agents",
     "features": [
@@ -100,7 +125,7 @@ export const featureCategories = [
     "name": "Chat",
     "features": [
       {
-        "name": "Copilot Chat in IDEs1 2",
+        "name": "Copilot Chat in IDEs",
         "values": [
           "50 messages per month",
           "Unlimited with base model",
@@ -160,7 +185,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Increased GitHub Models rate limits3",
+        "name": "Increased GitHub Models rate limits",
         "values": [
           "no",
           "no",
@@ -170,7 +195,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Copilot Chat skills in IDEs4",
+        "name": "Copilot Chat skills in IDEs",
         "values": [
           "no",
           "yes",
@@ -215,7 +240,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude Sonnet 4",
+        "name": "Claude Sonnet",
         "values": [
           "no",
           "yes",
@@ -225,7 +250,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude Opus 4",
+        "name": "Claude Opus",
         "values": [
           "no",
           "no",
@@ -265,7 +290,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4.1",
+        "name": "GPT-4.",
         "values": [
           "yes",
           "yes",
@@ -275,7 +300,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4.5",
+        "name": "GPT-4.",
         "values": [
           "no",
           "no",
@@ -285,7 +310,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "o1",
+        "name": "o",
         "values": [
           "no",
           "yes",
@@ -295,7 +320,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "o3",
+        "name": "o",
         "values": [
           "no",
           "no",
@@ -330,7 +355,7 @@ export const featureCategories = [
     "name": "Code completion",
     "features": [
       {
-        "name": "Real-time code suggestions with the base model5",
+        "name": "Real-time code suggestions with the base model",
         "values": [
           "2000 completions per month",
           "yes",
@@ -470,7 +495,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Fine tuning a custom large language model (limited public preview)6",
+        "name": "Fine tuning a custom large language model (limited public preview)",
         "values": [
           "no",
           "no",
@@ -493,4 +518,4 @@ export const featureCategories = [
   }
 ];
 
-export const LAST_UPDATED = "2025-06-03T23:57:55.250Z";
+export const LAST_UPDATED = "2025-06-04T00:30:12.156Z";
