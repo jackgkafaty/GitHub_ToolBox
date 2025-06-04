@@ -1,5 +1,5 @@
 // GitHub Copilot plans and features data
-// Auto-updated from GitHub docs on 2025-06-03T23:57:55.251Z
+// Auto-updated from GitHub docs on 2025-06-04T00:00:11.348Z
 // Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 export const planDetails = [
@@ -493,4 +493,4 @@ export const featureCategories = [
   }
 ];
 
-export const LAST_UPDATED = "2025-06-03T23:57:55.250Z";
+export const LAST_UPDATED = "2025-06-04T00:00:11.348Z";
