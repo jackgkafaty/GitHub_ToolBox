@@ -1,5 +1,5 @@
 // GitHub Copilot plans and features data
-// Auto-updated from GitHub docs on 2025-06-04T00:30:12.157Z
+// Auto-updated from GitHub docs on 2025-06-04T00:53:34.578Z
 // Source: https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot
 
 export const planDetails = [
@@ -125,7 +125,7 @@ export const featureCategories = [
     "name": "Chat",
     "features": [
       {
-        "name": "Copilot Chat in IDEs",
+        "name": "Copilot Chat in IDEs1",
         "values": [
           "50 messages per month",
           "Unlimited with base model",
@@ -185,7 +185,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Increased GitHub Models rate limits",
+        "name": "Increased GitHub Models rate limits3",
         "values": [
           "no",
           "no",
@@ -195,7 +195,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Copilot Chat skills in IDEs",
+        "name": "Copilot Chat skills in IDEs4",
         "values": [
           "no",
           "yes",
@@ -240,7 +240,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude Sonnet",
+        "name": "Claude Sonnet 4",
         "values": [
           "no",
           "yes",
@@ -250,7 +250,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Claude Opus",
+        "name": "Claude Opus 4",
         "values": [
           "no",
           "no",
@@ -290,7 +290,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4.",
+        "name": "GPT-4.1",
         "values": [
           "yes",
           "yes",
@@ -300,7 +300,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "GPT-4.",
+        "name": "GPT-4.5",
         "values": [
           "no",
           "no",
@@ -310,7 +310,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "o",
+        "name": "o1",
         "values": [
           "no",
           "yes",
@@ -320,7 +320,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "o",
+        "name": "o3",
         "values": [
           "no",
           "no",
@@ -355,7 +355,7 @@ export const featureCategories = [
     "name": "Code completion",
     "features": [
       {
-        "name": "Real-time code suggestions with the base model",
+        "name": "Real-time code suggestions with the base model5",
         "values": [
           "2000 completions per month",
           "yes",
@@ -495,7 +495,7 @@ export const featureCategories = [
         ]
       },
       {
-        "name": "Fine tuning a custom large language model (limited public preview)",
+        "name": "Fine tuning a custom large language model (limited public preview)6",
         "values": [
           "no",
           "no",
@@ -518,4 +518,4 @@ export const featureCategories = [
   }
 ];
 
-export const LAST_UPDATED = "2025-06-04T00:30:12.156Z";
+export const LAST_UPDATED = "2025-06-04T00:53:34.578Z";

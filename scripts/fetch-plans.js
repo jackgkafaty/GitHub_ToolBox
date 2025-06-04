@@ -33,6 +33,14 @@ function parseFeatureValue($, cell) {
 }
 
 /**
+ * Model name mapping to ensure consistent naming
+ */
+const MODEL_NAME_MAPPING = {
+  'Claude Sonnet': 'Claude Sonnet 4',
+  'Claude Opus': 'Claude Opus 4'
+};
+
+/**
  * Fetches and parses the GitHub Copilot plans data from the official documentation
  */
 async function fetchPlansData() {
@@ -138,7 +146,14 @@ async function fetchPlansData() {
       $(table).find('tbody tr').each((rowIndex, row) => {
         const featureNameWithFootnotes = $(row).find('th').text().trim();
         // Remove footnote numbers from feature names (e.g., "Copilot Chat in IDEs1 2" to "Copilot Chat in IDEs")
-        const featureName = featureNameWithFootnotes.replace(/\d+(\s+\d+)*$/, '').replace(/\s+$/, '').trim();
+        // But keep numbers that are part of model names like "GPT-4.1", "Claude Sonnet 4"
+        // Only remove if the number is standalone (preceded by a space and followed by nothing or another digit)
+        let featureName = featureNameWithFootnotes.replace(/ \d+(\s+\d+)*$/, '').replace(/\s+$/, '').trim();
+        
+        // Apply model name mapping for consistent naming
+        if (MODEL_NAME_MAPPING[featureName]) {
+          featureName = MODEL_NAME_MAPPING[featureName];
+        }
         const values = [];
         
         // Process each column (skipping the feature name column)
@@ -235,7 +250,7 @@ function getFallbackPlansData() {
       price: '$10',
       billing: 'monthly',
       description: 'AI pair programmer for individual developers',
-      popular: true,
+      popular: false,
       buttonText: 'Subscribe now',
       githubUrl: 'https://github.com/github-copilot/signup?ref_cta=Copilot+trial&ref_loc=about+github+copilot&ref_page=docs'
     },
@@ -244,7 +259,7 @@ function getFallbackPlansData() {
       price: '$39',
       billing: 'monthly',
       description: 'Premium AI pair programmer for individual developers',
-      popular: true,
+      popular: false,
       buttonText: 'Subscribe now',
       githubUrl: 'https://github.com/github-copilot/signup?ref_cta=Copilot+Pro%2B&ref_loc=subscriptions+page&ref_page=docs'
     },
@@ -262,7 +277,7 @@ function getFallbackPlansData() {
       price: '$39',
       billing: 'monthly',
       description: 'Enhanced security and compliance',
-      popular: false,
+      popular: true,
       buttonText: 'Get started',
       githubUrl: 'https://github.com/github-copilot/purchase?priority=enterprise&cft=copilot_li.copilot_plans.ce'
     }
@@ -355,7 +370,35 @@ async function main() {
     console.log('🔄 Updating GitHub Copilot plans data...');
     console.log('');
 
+    // Read current plans.js file to preserve model names
+    let preservedModelsCategory = null;
+    try {
+      const currentPlansContent = fs.readFileSync(PLANS_FILE_PATH, 'utf8');
+      const modelsMatch = currentPlansContent.match(/("name": "Models"[^{]*{[^[]*\[[^]]*"features": \[)([^]]*)\]/s);
+      if (modelsMatch && modelsMatch[2]) {
+        console.log('📋 Found existing Models category, will preserve model names');
+        preservedModelsCategory = {
+          name: "Models",
+          features: JSON.parse(`[${modelsMatch[2]}]`)
+        };
+      }
+    } catch (err) {
+      console.log('⚠️ Could not read existing plans.js file, will use fetched model names');
+    }
+
     const plansData = await fetchPlansData();
+    
+    // Replace the Models category with our preserved one if it exists
+    if (preservedModelsCategory) {
+      const modelsCategoryIndex = plansData.featureCategories.findIndex(cat => cat.name === "Models");
+      if (modelsCategoryIndex !== -1) {
+        plansData.featureCategories[modelsCategoryIndex] = preservedModelsCategory;
+        console.log('✅ Successfully preserved model names from existing file');
+      } else {
+        plansData.featureCategories.push(preservedModelsCategory);
+        console.log('✅ Added preserved Models category to the feature categories');
+      }
+    }
 
     if (updatePlansFile(plansData)) {
       console.log('');
