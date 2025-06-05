@@ -7,26 +7,42 @@ import LicensingCalculator from './LicensingCalculator';
 function Navigation() {
   const location = useLocation();
   
+  const navItems = [
+    {
+      path: '/',
+      label: 'Premium Requests',
+      icon: '⚡',
+      description: 'Calculate premium request costs'
+    },
+    {
+      path: '/licensing',
+      label: 'License Calculator',
+      icon: '📊',
+      description: 'General licensing calculator'
+    },
+    {
+      path: '/features',
+      label: 'Feature Comparison',
+      icon: '⚖️',
+      description: 'Compare Copilot plans'
+    }
+  ];
+  
   return (
     <nav className="copilot-nav">
-      <Link 
-        to="/" 
-        className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-      >
-        GitHub Copilot Premium Requests
-      </Link>
-      <Link 
-        to="/licensing" 
-        className={`nav-link ${location.pathname === '/licensing' ? 'active' : ''}`}
-      >
-        General License Calculator
-      </Link>
-      <Link 
-        to="/features" 
-        className={`nav-link ${location.pathname === '/features' ? 'active' : ''}`}
-      >
-        GitHub Copilot Comparison
-      </Link>
+      <div className="nav-container">
+        {navItems.map((item) => (
+          <Link 
+            key={item.path}
+            to={item.path} 
+            className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
+            title={item.description}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.label}</span>
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }
