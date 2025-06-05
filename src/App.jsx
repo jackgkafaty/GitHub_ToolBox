@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import copilotIcon from './assets/github-copilot-white-icon.svg';
+import githubIcon from './assets/GitHub_Icon.png';
 import Calculator from './Calculator';
 import FeatureComparison from './FeatureComparison';
 import LicensingCalculator from './LicensingCalculator';
@@ -13,19 +13,19 @@ function Navigation() {
         to="/" 
         className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
       >
-        Premium Requests Calculator
+        GitHub Copilot Premium Requests
       </Link>
       <Link 
         to="/licensing" 
         className={`nav-link ${location.pathname === '/licensing' ? 'active' : ''}`}
       >
-        License Calculator
+        General License Calculator
       </Link>
       <Link 
         to="/features" 
         className={`nav-link ${location.pathname === '/features' ? 'active' : ''}`}
       >
-        Feature Comparison
+        GitHub Copilot Comparison
       </Link>
     </nav>
   );
@@ -39,8 +39,8 @@ export default function App() {
     <Router basename={basename}>
       <div className="copilot-hero-bg">
         <header className="copilot-header">
-          <img src={copilotIcon} alt="GitHub Copilot" className="copilot-header-icon copilot-header-icon-large" />
-          <span className="copilot-logo">GitHub Copilot Tools</span>
+          <img src={githubIcon} alt="GitHub" className="copilot-header-icon copilot-header-icon-large" />
+          <span className="copilot-logo">GitHub ToolBox</span>
         </header>
         <Navigation />
         <div className="copilot-banner">
