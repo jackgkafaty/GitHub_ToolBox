@@ -100,14 +100,14 @@ export default function LicensingCalculator() {
     // but we don't automatically add Enterprise Cloud to selected options anymore
   }, [selectedGithubPlan]);
 
-  // Set months to 12 when standalone is enabled or when showing yearly costs
+  // Set months to 12 when showing yearly costs, otherwise 1
   useEffect(() => {
-    if (isStandaloneEnabled || showYearlyCost) {
+    if (showYearlyCost) {
       setMonths(12);
     } else {
       setMonths(1); // Default to 1 month when showing monthly costs
     }
-  }, [isStandaloneEnabled, showYearlyCost]);
+  }, [showYearlyCost]);
   
   // No longer force yearly cost display when standalone is enabled
   useEffect(() => {
@@ -630,7 +630,7 @@ export default function LicensingCalculator() {
                   }
                 }}
                 style={{
-                  padding: '0.75rem 1.2rem',
+                  padding: '0.5rem 0.8rem',
                   borderRadius: '8px',
                   border: '1px solid #30363d',
                   background: '#161b22',
@@ -640,8 +640,9 @@ export default function LicensingCalculator() {
                   marginTop: '0.5rem',
                   transition: 'all 0.2s ease',
                   boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
-                  minHeight: '44px',
-                  height: '44px',
+                  minHeight: '38px',
+                  height: '38px',
+                  width: '60px',
                   textAlign: 'center'
                 }}
               />
@@ -1030,12 +1031,12 @@ export default function LicensingCalculator() {
       }}>
         <div style={{
           display: 'inline-flex',
-          background: isStandaloneEnabled ? '#1d3149' : '#1a1f24',
-          border: `1px solid ${isStandaloneEnabled ? '#58a6ff' : '#30363d'}`,
+          background: '#1a1f24',
+          border: '1px solid #30363d',
           borderRadius: '6px',
           height: '32px',
           overflow: 'hidden',
-          boxShadow: isStandaloneEnabled ? '0 0 8px rgba(88, 166, 255, 0.4)' : 'none',
+          boxShadow: 'none',
         }}>
           <button 
             onClick={() => setShowYearlyCost(false)}
@@ -1172,24 +1173,22 @@ export default function LicensingCalculator() {
                               <span className="formula-result" style={{flex: 1, textAlign: 'center', fontWeight: 'bold', color: '#e6edf3'}}>${formatNumber((option.price * calculateNetGHECLicenses()) * calculationMonths)}</span>
                             </div>
                           ) : (
-                            <>
-                              <div className="formula formula-aligned" style={{ 
-                                fontSize: '0.9rem',
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'space-between',
-                                width: '100%',
-                                margin: '0.5rem 0'
-                              }}>
-                                <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>${formatNumber(option.discountedPrice)}</span>
-                                <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
-                                <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{optionLicenseCounts[option.key]}</span>
-                                <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
-                                <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{calculationMonths}</span>
-                                <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>=</span>
-                                <span className="formula-result" style={{flex: 1, textAlign: 'center', fontWeight: 'bold', color: '#e6edf3'}}>${formatNumber(option.discountedPrice * optionLicenseCounts[option.key] * calculationMonths)}</span>
-                              </div>
-                            </>
+                            <div className="formula formula-aligned" style={{ 
+                              fontSize: '0.9rem',
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'space-between',
+                              width: '100%',
+                              margin: '0.5rem 0'
+                            }}>
+                              <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>${formatNumber(option.price)}</span>
+                              <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
+                              <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>0</span>
+                              <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
+                              <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{calculationMonths}</span>
+                              <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>=</span>
+                              <span className="formula-result" style={{flex: 1, textAlign: 'center', fontWeight: 'bold', color: '#e6edf3'}}>$0.00</span>
+                            </div>
                           )}
                         </>
                       ) : (
@@ -1269,14 +1268,14 @@ export default function LicensingCalculator() {
                   fontWeight: '600',
                   fontSize: '1.1rem',
                   color: '#e6edf3'
-                }}>Total {showYearlyCost || isStandaloneEnabled ? 'Annual' : 'Monthly'} Cost:</span>
+                }}>Total {showYearlyCost ? 'Annual' : 'Monthly'} Cost:</span>
                 <span className="total-premium-spacer" style={{flex: 1}}></span>
                 <span className="total-premium-value" style={{
                   fontWeight: '700',
                   fontSize: '1.2rem',
                   color: '#58a6ff'
                 }}>
-                  ${showYearlyCost || isStandaloneEnabled ? formatNumber(totalPeriodCost) : formatNumber(totalPeriodCost / months)}
+                  ${showYearlyCost ? formatNumber(totalPeriodCost) : formatNumber(totalPeriodCost / months)}
                 </span>
               </div>
             </div>
@@ -1309,62 +1308,31 @@ export default function LicensingCalculator() {
               fontWeight: '600',
               color: '#e6edf3',
               margin: '0 0 1rem 0'
-            }}>GitHub License Cost</h3>                {optionLicenseCounts['enterpriseCloud'] > 0 ? (
-              <>
-                <div className="result-row" style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '0.6rem 0',
-                  borderBottom: '1px solid #30363d'
-                }}>
-                  {selectedOptions.includes("visualStudio") && hasExistingVSLicenses && optionLicenseCounts["visualStudio"] > 0 ? (
-                    <span style={{ color: '#8b949e' }}>GitHub Enterprise Cloud ({calculateNetGHECLicenses()} license{calculateNetGHECLicenses() !== 1 ? 's' : ''}):</span>
-                  ) : (
-                    <span style={{ color: '#8b949e' }}>GitHub Enterprise Cloud ({optionLicenseCounts['enterpriseCloud']} license{optionLicenseCounts['enterpriseCloud'] !== 1 ? 's' : ''}):</span>
-                  )}
-                  <b style={{ color: '#e6edf3' }}>
-                    ${showYearlyCost || isStandaloneEnabled 
-                       ? formatNumber(calculateGitHubLicenseCost()) 
-                       : formatNumber(calculateGitHubLicenseCost() / calculationMonths)}{showYearlyCost || isStandaloneEnabled ? '/year' : '/month'}
-                  </b>
-                </div>
-              </>
-            ) :(
-              <div className="formula-breakdown-container" style={{ marginBottom: '1rem' }}>
-                <div style={{ color: '#8b949e', marginBottom: '0.5rem' }}>GitHub Enterprise Cloud</div>
-                <div className="formula formula-aligned" style={{ 
-                  fontSize: '0.9rem',
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  margin: '0.5rem 0'
-                }}>
-                  <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>${formatNumber(additionalOptions.find(opt => opt.key === 'enterpriseCloud').price)}</span>
-                  <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
-                  <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>0</span>
-                  <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
-                  <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{calculationMonths}</span>
-                  <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>=</span>
-                  <span className="formula-result" style={{flex: 1, textAlign: 'center', fontWeight: 'bold', color: '#e6edf3'}}>$0.00</span>
-                </div>
-                <div className="formula-labels formula-aligned" style={{ 
-                  fontSize: '0.8rem', 
-                  color: '#8b949e',
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
-                  width: '100%'
-                }}>
-                  <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Price/user</span>
-                  <span className="formula-label blank" style={{flex: 0.3}}></span>
-                  <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Licenses</span>
-                  <span className="formula-label blank" style={{flex: 0.3}}></span>
-                  <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Months</span>
-                  <span className="formula-label blank" style={{flex: 0.3}}></span>
-                  <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Total</span>
-                </div>
+            }}>GitHub License Cost</h3>
+            
+            {/* GHEC License line item */}
+            {optionLicenseCounts['enterpriseCloud'] > 0 && (
+              <div className="result-row" style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.6rem 0',
+                borderBottom: '1px solid #30363d'
+              }}>
+                {selectedOptions.includes("visualStudio") && hasExistingVSLicenses && optionLicenseCounts["visualStudio"] > 0 ? (
+                  <span style={{ color: '#8b949e' }}>
+                    GitHub Enterprise Cloud ({calculateNetGHECLicenses() <= 0 ? 0 : calculateNetGHECLicenses()} license{calculateNetGHECLicenses() !== 1 ? 's' : ''}):
+                  </span>
+                ) : (
+                  <span style={{ color: '#8b949e' }}>
+                    GitHub Enterprise Cloud ({optionLicenseCounts['enterpriseCloud']} license{optionLicenseCounts['enterpriseCloud'] !== 1 ? 's' : ''}):
+                  </span>
+                )}
+                <b style={{ color: '#e6edf3' }}>
+                  ${showYearlyCost 
+                    ? formatNumber(calculateGitHubLicenseCost()) 
+                    : formatNumber(calculateGitHubLicenseCost() / calculationMonths)}{showYearlyCost ? '/year' : '/month'}
+                </b>
               </div>
             )}
             
@@ -1382,14 +1350,12 @@ export default function LicensingCalculator() {
               }}>
                 <span style={{ color: '#8b949e' }}>GitHub Enterprise Cloud - Visual Studio Bundle ({optionLicenseCounts['visualStudio']} license{optionLicenseCounts['visualStudio'] !== 1 ? 's' : ''}):</span>
                 <b style={{ color: '#e6edf3' }}>
-                  ${showYearlyCost || isStandaloneEnabled 
+                  ${showYearlyCost 
                      ? formatNumber(calculateVSSubscriptionCost()) 
-                     : formatNumber(calculateVSSubscriptionCost() / calculationMonths)}{showYearlyCost || isStandaloneEnabled ? '/year' : '/month'}
+                     : formatNumber(calculateVSSubscriptionCost() / calculationMonths)}{showYearlyCost ? '/year' : '/month'}
                 </b>
               </div>
             )}
-            
-            {/* VS subscription banner message removed */}
           </div>
         )}
         
@@ -1411,9 +1377,9 @@ export default function LicensingCalculator() {
           }}>
             <span style={{ color: '#8b949e' }}>{selectedPlan.name} ({developerCount} user{developerCount !== 1 ? 's' : ''}):</span>
             <b style={{ color: '#e6edf3' }}>
-              ${showYearlyCost || isStandaloneEnabled 
+              ${showYearlyCost 
                  ? formatNumber(calculateCopilotCost()) 
-                 : formatNumber(basePrice * developerCount)}{showYearlyCost || isStandaloneEnabled ? '/year' : '/month'}
+                 : formatNumber(basePrice * developerCount)}{showYearlyCost ? '/year' : '/month'}
             </b>
           </div>
         </div>
@@ -1428,10 +1394,10 @@ export default function LicensingCalculator() {
           borderTop: '1px solid #30363d'
         }}>
           <span style={{ color: '#e6edf3' }}>
-            Total {showYearlyCost || isStandaloneEnabled ? 'Annual' : 'Monthly'} Cost:
+            Total {showYearlyCost ? 'Annual' : 'Monthly'} Cost:
           </span>
           <b style={{ color: '#58a6ff', fontSize: '1.2rem' }}>
-            ${showYearlyCost || isStandaloneEnabled ? formatNumber(totalPeriodCost) : formatNumber(totalPeriodCost / months)}
+            ${showYearlyCost ? formatNumber(totalPeriodCost) : formatNumber(totalPeriodCost / months)}
           </b>
         </div>
         
