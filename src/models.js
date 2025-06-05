@@ -1,5 +1,5 @@
 // List of models and their premium request multipliers
-// Auto-updated from GitHub docs on 2025-06-05T00:37:29.278Z
+// Auto-updated from GitHub docs on 2025-06-05T02:26:44.754Z
 // Source: https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests#model-multipliers
 export const models = [
   { name: "Base model (GPT-4.1)", multiplier: 0, note: "Paid users" },
