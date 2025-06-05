@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Generated files (fetched during build)
+src/models.js
+src/plans.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
