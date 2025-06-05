@@ -884,23 +884,8 @@ export default function LicensingCalculator() {
                 if (selectedOptions && selectedOptions.length > 0) {
                   const newFeatures = selectedOptions.map(option => option.value);
                   setSelectedAdvancedSecurityFeatures(newFeatures);
-                  
-                  // Reset license counts for deselected features
-                  const newLicenseCounts = { ...advancedSecurityLicenseCounts };
-                  if (!newFeatures.includes('secretProtection')) {
-                    newLicenseCounts.secretProtection = 0;
-                  }
-                  if (!newFeatures.includes('codeSecurity')) {
-                    newLicenseCounts.codeSecurity = 0;
-                  }
-                  setAdvancedSecurityLicenseCounts(newLicenseCounts);
                 } else {
                   setSelectedAdvancedSecurityFeatures([]);
-                  // Reset all license counts when no features are selected
-                  setAdvancedSecurityLicenseCounts({
-                    secretProtection: 0,
-                    codeSecurity: 0,
-                  });
                 }
               }}
               options={[
@@ -1910,8 +1895,7 @@ export default function LicensingCalculator() {
             </div>
 
             {/* GitHub Advanced Security Cost */}
-            {(selectedAdvancedSecurityFeatures.includes('secretProtection') && advancedSecurityLicenseCounts.secretProtection > 0) || 
-             (selectedAdvancedSecurityFeatures.includes('codeSecurity') && advancedSecurityLicenseCounts.codeSecurity > 0) ? (
+            {(advancedSecurityLicenseCounts.secretProtection > 0 || advancedSecurityLicenseCounts.codeSecurity > 0) && (
               <div
                 className="formula-breakdown-container"
                 style={{
@@ -1921,7 +1905,7 @@ export default function LicensingCalculator() {
                 }}
               >
                 {/* Secret Protection breakdown */}
-                {selectedAdvancedSecurityFeatures.includes('secretProtection') && advancedSecurityLicenseCounts.secretProtection > 0 && (
+                {advancedSecurityLicenseCounts.secretProtection > 0 && (
                   <div style={{ marginBottom: "1rem" }}>
                     <h6
                       style={{
@@ -2048,7 +2032,7 @@ export default function LicensingCalculator() {
                 )}
 
                 {/* Code Security breakdown */}
-                {selectedAdvancedSecurityFeatures.includes('codeSecurity') && advancedSecurityLicenseCounts.codeSecurity > 0 && (
+                {advancedSecurityLicenseCounts.codeSecurity > 0 && (
                   <div style={{ marginBottom: "0.5rem" }}>
                     <h6
                       style={{
@@ -2174,7 +2158,7 @@ export default function LicensingCalculator() {
                   </div>
                 )}
               </div>
-            ) : null}
+            )}
 
             {/* Additional Options Cost */}
             {selectedOptions.map((optionKey, index) => {
@@ -2784,24 +2768,13 @@ export default function LicensingCalculator() {
         </div>
 
         {/* GitHub Advanced Security Cost Section */}
-        {(selectedAdvancedSecurityFeatures.includes('secretProtection') && advancedSecurityLicenseCounts.secretProtection > 0) || 
-         (selectedAdvancedSecurityFeatures.includes('codeSecurity') && advancedSecurityLicenseCounts.codeSecurity > 0) ? (
+        {(advancedSecurityLicenseCounts.secretProtection > 0 || advancedSecurityLicenseCounts.codeSecurity > 0) && (
           <div
             className="github-advanced-security-section"
             style={{ marginBottom: "1.5rem" }}
           >
-            <h3
-              style={{
-                fontSize: "1.2rem",
-                fontWeight: "600",
-                color: "#e6edf3",
-                margin: "0 0 1rem 0",
-              }}
-            >
-              GitHub Advanced Security
-            </h3>
             {/* Secret Protection licenses */}
-            {selectedAdvancedSecurityFeatures.includes('secretProtection') && advancedSecurityLicenseCounts.secretProtection > 0 && (
+            {advancedSecurityLicenseCounts.secretProtection > 0 && (
               <div
                 className="result-row"
                 style={{
@@ -2827,7 +2800,7 @@ export default function LicensingCalculator() {
             )}
 
             {/* Code Security licenses */}
-            {selectedAdvancedSecurityFeatures.includes('codeSecurity') && advancedSecurityLicenseCounts.codeSecurity > 0 && (
+            {advancedSecurityLicenseCounts.codeSecurity > 0 && (
               <div
                 className="result-row"
                 style={{
@@ -2852,7 +2825,7 @@ export default function LicensingCalculator() {
               </div>
             )}
           </div>
-        ) : null}
+        )}
 
         {/* Total Cost Section */}
         <div

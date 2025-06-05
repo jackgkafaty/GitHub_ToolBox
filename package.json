@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://jackgkafaty.github.io/GitHubCopilot_PremiumRequests",
+  "homepage": "https://jackgkafaty.github.io/GitHub_ToolBox",
   "scripts": {
     "dev": "vite",
     "build": "npm run fetch-models && npm run fetch-plans && vite build",

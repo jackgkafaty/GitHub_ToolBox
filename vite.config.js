@@ -5,16 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: process.env.NODE_ENV === 'production' 
-    ? '/GitHubCopilot_PremiumRequests/' // for GitHub Pages deployment
+    ? '/GitHub_ToolBox/' // for GitHub Pages deployment
     : '/', // for development
   server: {
     // Always open at the base path in development
     open: true
-  },
-  build: {
-    rollupOptions: {
-      external: [],
-      output: {}
-    }
   }
 })

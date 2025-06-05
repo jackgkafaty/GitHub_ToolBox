@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import githubIcon from './assets/GitHub_Icon.png';
+import copilotIcon from './assets/github-copilot-white-icon.svg';
 import Calculator from './Calculator';
 import FeatureComparison from './FeatureComparison';
 import LicensingCalculator from './LicensingCalculator';
@@ -7,56 +7,40 @@ import LicensingCalculator from './LicensingCalculator';
 function Navigation() {
   const location = useLocation();
   
-  const navItems = [
-    {
-      path: '/',
-      label: 'Premium Requests',
-      icon: '⚡',
-      description: 'Calculate premium request costs'
-    },
-    {
-      path: '/licensing',
-      label: 'License Calculator',
-      icon: '📊',
-      description: 'General licensing calculator'
-    },
-    {
-      path: '/features',
-      label: 'Feature Comparison',
-      icon: '⚖️',
-      description: 'Compare Copilot plans'
-    }
-  ];
-  
   return (
     <nav className="copilot-nav">
-      <div className="nav-container">
-        {navItems.map((item) => (
-          <Link 
-            key={item.path}
-            to={item.path} 
-            className={`nav-link ${location.pathname === item.path ? 'active' : ''}`}
-            title={item.description}
-          >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
-          </Link>
-        ))}
-      </div>
+      <Link 
+        to="/" 
+        className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
+      >
+        Premium Requests Calculator
+      </Link>
+      <Link 
+        to="/licensing" 
+        className={`nav-link ${location.pathname === '/licensing' ? 'active' : ''}`}
+      >
+        License Calculator
+      </Link>
+      <Link 
+        to="/features" 
+        className={`nav-link ${location.pathname === '/features' ? 'active' : ''}`}
+      >
+        Feature Comparison
+      </Link>
     </nav>
   );
 }
 
 export default function App() {
-  // In development, we use '/' as the base path, in production we use '/GitHubCopilot_PremiumRequests'
-  const basename = import.meta.env.DEV ? '/' : '/GitHubCopilot_PremiumRequests';
+  // In development, we use '/' as the base path, in production we use '/GitHub_ToolBox'
+  const basename = import.meta.env.DEV ? '/' : '/GitHub_ToolBox';
 
   return (
     <Router basename={basename}>
       <div className="copilot-hero-bg">
         <header className="copilot-header">
-          <img src={githubIcon} alt="GitHub" className="copilot-header-icon copilot-header-icon-large" />
-          <span className="copilot-logo">GitHub ToolBox</span>
+          <img src={copilotIcon} alt="GitHub Copilot" className="copilot-header-icon copilot-header-icon-large" />
+          <span className="copilot-logo">GitHub Copilot Tools</span>
         </header>
         <Navigation />
         <div className="copilot-banner">
