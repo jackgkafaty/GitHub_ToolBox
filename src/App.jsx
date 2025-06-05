@@ -43,6 +43,11 @@ export default function App() {
           <span className="copilot-logo">GitHub Copilot Tools</span>
         </header>
         <Navigation />
+        <div className="copilot-banner">
+          The content of this resource is provided <strong>-as is-</strong> for educational purposes and it is not part of GitHub's official documentation.
+          For GitHub's Official documentation, pricing and offerings, please visit 
+          <a href="https://docs.github.com/en" target="_blank" rel="noopener noreferrer"> GitHub Docs</a>.
+        </div>
         <main className="copilot-main">
           <Routes>
             <Route path="/" element={<Calculator />} />
