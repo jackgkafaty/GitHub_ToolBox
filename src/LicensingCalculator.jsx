@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { planDetails, featureCategories } from './plans.js';
 import Select from 'react-select';
+import { Link } from 'react-router-dom';
 
 export default function LicensingCalculator() {
   // Filter out plans with "Not applicable" pricing and Pro/Pro+ plans for licensing calculator
@@ -46,8 +47,8 @@ export default function LicensingCalculator() {
     description: "Use GitHub Copilot without additional bundled products"
   };
 
-  const [selectedPlan, setSelectedPlan] = useState(availablePlans[0]); // Default to first available plan
-  const [developerCount, setDeveloperCount] = useState(1);
+  const [selectedPlans, setSelectedPlans] = useState([availablePlans[0]]); // Default to first available plan with multi-select support
+  const [developerCount, setDeveloperCount] = useState(1); // Default to 1 license
   const [selectedBilling, setSelectedBilling] = useState(billingOptions[0]);
   const [selectedGithubPlan, setSelectedGithubPlan] = useState(githubPlanOptions[0]); // Default to GitHub Free
   const [months, setMonths] = useState(1); // Default to 1 month
@@ -60,6 +61,9 @@ export default function LicensingCalculator() {
     enterpriseCloud: 0  // Default to 0 for Enterprise Cloud licenses
   });
   
+  // Store separate license counts for each selected plan
+  const [planDeveloperCounts, setPlanDeveloperCounts] = useState({});
+  
   // Filter available plans based on selected GitHub plan
   const getFilteredPlans = () => {
     const githubPlanValue = selectedGithubPlan.value;
@@ -71,28 +75,35 @@ export default function LicensingCalculator() {
   // Get filtered plans based on GitHub plan selection
   const filteredPlans = getFilteredPlans();
   
-  // Update selected plan when GitHub plan changes to ensure compatibility
+  // Update selected plans when GitHub plan changes to ensure compatibility
   useEffect(() => {
     // Get filtered plans based on the new GitHub plan
     const filtered = getFilteredPlans();
     
-    // If the current selected plan is not in the filtered list, select the first available plan
-    if (!filtered.some(plan => plan.name === selectedPlan.name) && filtered.length > 0) {
-      setSelectedPlan(filtered[0]);
+    // Filter out any plans that are no longer available
+    const validSelectedPlans = selectedPlans.filter(plan => 
+      filtered.some(filteredPlan => filteredPlan.name === plan.name)
+    );
+    
+    // If no valid plans remain, select the first available plan
+    if (validSelectedPlans.length === 0 && filtered.length > 0) {
+      setSelectedPlans([filtered[0]]);
+    } else if (validSelectedPlans.length !== selectedPlans.length) {
+      setSelectedPlans(validSelectedPlans);
     }
     
-    // If Copilot Enterprise is selected, make sure GitHub Enterprise Cloud is the selected GitHub plan
-    if (selectedPlan.name === "Copilot Enterprise" && selectedGithubPlan.value !== 'enterprise') {
+    // If any selected plan is Copilot Enterprise, make sure GitHub Enterprise Cloud is the selected GitHub plan
+    if (selectedPlans.some(plan => plan.name === "Copilot Enterprise") && selectedGithubPlan.value !== 'enterprise') {
       setSelectedGithubPlan(githubPlanOptions[2]); // GitHub Enterprise Cloud
     }
   }, [selectedGithubPlan]);
   
   // Set GitHub Enterprise Cloud as default when Copilot Enterprise is selected
   useEffect(() => {
-    if (selectedPlan.name === "Copilot Enterprise") {
+    if (selectedPlans.some(plan => plan.name === "Copilot Enterprise")) {
       setSelectedGithubPlan(githubPlanOptions[2]); // GitHub Enterprise Cloud
     }
-  }, [selectedPlan]);
+  }, [selectedPlans]);
   
   // No longer automatically add/remove Enterprise Cloud based on GitHub Plan selection
   useEffect(() => {
@@ -114,8 +125,8 @@ export default function LicensingCalculator() {
     // The user can now choose monthly or yearly regardless of standalone mode
   }, [isStandaloneEnabled]);
 
-  // Find premium requests for the selected plan
-  const findPremiumRequests = () => {
+  // Find premium requests for a specific plan
+  const findPremiumRequests = (plan) => {
     // Find the "Premium requests" category
     const premiumCategory = featureCategories.find(category => 
       category.name === "Premium requests"
@@ -131,15 +142,12 @@ export default function LicensingCalculator() {
     if (!premiumFeature) return "Not specified";
     
     // Get the plan index
-    const planIndex = planDetails.findIndex(plan => plan.name === selectedPlan.name);
+    const planIndex = planDetails.findIndex(p => p.name === plan.name);
     if (planIndex === -1) return "Not specified";
     
-    // Return the value for the selected plan
+    // Return the value for the specified plan
     return premiumFeature.values[planIndex];
   };
-
-  // Get the premium requests value
-  const premiumRequests = findPremiumRequests();
   
   // Parse price from string like "$19 USD" to number
   const parsePrice = (priceStr) => {
@@ -148,21 +156,18 @@ export default function LicensingCalculator() {
     return match ? Number(match[1]) : 0;
   };
 
-  // Get base price of the selected plan based on its name (hardcoded prices)
-  const getBasePrice = () => {
-    const planName = selectedPlan.name;
+  // Get base price of a plan based on its name (hardcoded prices)
+  const getBasePrice = (plan) => {
+    const planName = plan.name;
     if (planName === "Copilot Enterprise") return 39;
     if (planName === "Copilot Business") return 19;
     if (planName === "Copilot Pro+") return 39;
     if (planName === "Copilot Pro") return 10;
-    return parsePrice(selectedPlan.price);
+    return parsePrice(plan.price);
   };
   
-  // Get base price of the selected plan
-  const basePrice = getBasePrice();
-  
   // Calculate monthly cost per user with billing option applied
-  const monthlyPerUser = basePrice;
+  const monthlyPerUser = selectedPlans.length > 0 ? getBasePrice(selectedPlans[0]) : 0;
   
   // Determine number of months for calculation
   const calculationMonths = selectedBilling.key === 'monthly' ? months : 12;
@@ -319,16 +324,29 @@ export default function LicensingCalculator() {
     return option.discountedPrice * licenseCount * calculationMonths;
   };
   
-  // Calculate GitHub Copilot cost
-  const calculateCopilotCost = () => {
-    return basePrice * developerCount * calculationMonths;
+  // Calculate GitHub Copilot cost for a specific plan
+  const calculateCopilotCost = (plan) => {
+    const planBasePrice = getBasePrice(plan);
+    const planDevCount = planDeveloperCounts[plan.name] || 0;
+    return planBasePrice * planDevCount * calculationMonths;
   };
   
-  // Calculate total monthly cost per user (Copilot only)
+  // Calculate total Copilot cost across all selected plans
+  const calculateTotalCopilotCost = () => {
+    return selectedPlans.reduce((total, plan) => {
+      return total + calculateCopilotCost(plan);
+    }, 0);
+  };
+  
+  // Calculate total monthly cost per user (Copilot only) - for display purposes
   const totalMonthlyPerUser = monthlyPerUser;
   
-  // Calculate total monthly cost for all developers (Copilot only)
-  const totalMonthlyCost = totalMonthlyPerUser * developerCount;
+  // Calculate total monthly cost for all plans and licenses
+  const totalMonthlyCost = selectedPlans.reduce((total, plan) => {
+    const planPrice = getBasePrice(plan);
+    const planDevCount = planDeveloperCounts[plan.name] || 0;
+    return total + (planPrice * planDevCount);
+  }, 0);
   
   // Calculate total cost for Copilot over the selected period
   const copilotPeriodCost = totalMonthlyCost * calculationMonths;
@@ -438,6 +456,15 @@ export default function LicensingCalculator() {
 
   return (
     <div className="copilot-card">
+      <h2 className="licenses-title" style={{
+        fontSize: '1.6rem',
+        fontWeight: '700',
+        margin: '0 0 1.5rem 0',
+        letterSpacing: '-0.5px',
+        color: '#e6edf3',
+        textAlign: 'left'
+      }}>GitHub Copilot License Details</h2>
+      
       {/* Plan and GitHub Plan Selectors */}
       <div className="form-row" style={{
         display: 'flex',
@@ -454,62 +481,131 @@ export default function LicensingCalculator() {
           }}>
             GitHub Copilot:
             <Select 
-              value={{ value: selectedPlan.name, label: selectedPlan.name }}
-              onChange={(option) => setSelectedPlan(availablePlans.find(p => p.name === option.value))}
-              options={filteredPlans.map(plan => ({ value: plan.name, label: plan.name }))}
+              isMulti
+              value={selectedPlans.map(plan => ({ 
+                value: plan.name, 
+                label: plan.name,
+                color: `hsl(${(filteredPlans.findIndex(p => p.name === plan.name) * 137.5) % 360}, 70%, 60%)`
+              }))}
+              onChange={(selectedOptions) => {
+                if (selectedOptions && selectedOptions.length > 0) {
+                  // Map the selected options back to plan objects
+                  const newSelectedPlans = selectedOptions.map(option => 
+                    availablePlans.find(plan => plan.name === option.value)
+                  ).filter(Boolean);
+                  
+                  setSelectedPlans(newSelectedPlans);
+                  
+                  // Initialize license counts for newly selected plans
+                  const newPlanDeveloperCounts = {...planDeveloperCounts};
+                  newSelectedPlans.forEach(plan => {
+                    if (!newPlanDeveloperCounts[plan.name]) {
+                      newPlanDeveloperCounts[plan.name] = developerCount;
+                    }
+                  });
+                  setPlanDeveloperCounts(newPlanDeveloperCounts);
+                } else {
+                  // If no plans selected, default to first available plan
+                  setSelectedPlans([availablePlans[0]]);
+                  setPlanDeveloperCounts({
+                    [availablePlans[0].name]: developerCount
+                  });
+                }
+              }}
+              options={filteredPlans.map((plan, index) => ({ 
+                value: plan.name, 
+                label: plan.name,
+                color: `hsl(${(index * 137.5) % 360}, 70%, 60%)` // Generate distinct colors
+              }))}
               classNamePrefix="plan-select"
               className="copilot-plan-select"
+              placeholder="Select Copilot plans..."
               styles={{
-                control: (baseStyles) => ({
-                  ...baseStyles,
-                  padding: '0.35rem 0.5rem',
-                  borderRadius: '8px',
-                  border: '1px solid #30363d',
-                  background: '#161b22',
-                  minHeight: '44px',
-                  height: '44px',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
-                  '&:hover': {
-                    borderColor: '#58a6ff',
-                    boxShadow: '0 0 0 1px rgba(88, 166, 255, 0.5)'
-                  }
-                }),
-                singleValue: (baseStyles) => ({
-                  ...baseStyles,
+                control: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  borderColor: state.isFocused ? '#7c3aed' : '#30363d',
                   color: '#e6edf3',
+                  minHeight: '44px',
+                  width: '100%',
+                  maxWidth: '100%',
                   fontSize: '1rem',
                   fontWeight: '500',
-                }),
-                menu: (baseStyles) => ({
-                  ...baseStyles,
-                  background: '#1a1f24',
+                  borderRadius: '8px',
                   border: '1px solid #30363d',
-                  borderRadius: '6px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  zIndex: 10
-                }),
-                option: (baseStyles, { isFocused, isSelected }) => ({
-                  ...baseStyles,
-                  backgroundColor: isSelected ? '#1f6feb' : isFocused ? '#30363d' : undefined,
-                  color: '#e6edf3',
-                  padding: '0.75rem 1.2rem',
-                  cursor: 'pointer',
-                  '&:active': {
-                    backgroundColor: '#1a5dca'
+                  boxShadow: state.isFocused ? '0 0 0 3px rgba(124, 58, 237, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.12)',
+                  '&:hover': {
+                    borderColor: '#7c3aed',
+                    backgroundColor: '#0d1117'
                   }
                 }),
-                input: (baseStyles) => ({
-                  ...baseStyles,
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  border: '1px solid #30363d',
+                  borderRadius: '8px',
+                  zIndex: 9999
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isSelected 
+                    ? '#7c3aed' 
+                    : state.isFocused 
+                      ? '#21262c' 
+                      : '#161b22',
                   color: '#e6edf3',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#21262c'
+                  }
+                }),
+                multiValue: (provided, { data }) => ({
+                  ...provided,
+                  backgroundColor: data.color + '20',
+                  borderRadius: '4px',
+                  border: `1px solid ${data.color}`,
+                  maxWidth: '45%',
+                  margin: '2px'
+                }),
+                multiValueLabel: (provided, { data }) => ({
+                  ...provided,
+                  color: '#e6edf3',
+                  fontSize: '0.85rem',
+                  fontWeight: '500',
+                  padding: '2px 4px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }),
+                multiValueRemove: (provided, { data }) => ({
+                  ...provided,
+                  color: data.color,
+                  padding: '0 4px',
+                  '&:hover': {
+                    backgroundColor: data.color + '40',
+                    color: '#ffffff'
+                  }
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: '#7d8590'
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
+                }),
+                input: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
                 }),
                 indicatorSeparator: () => ({
                   display: 'none',
                 }),
-                dropdownIndicator: (baseStyles) => ({
-                  ...baseStyles,
+                dropdownIndicator: (provided) => ({
+                  ...provided,
                   color: '#8b949e',
                   '&:hover': {
-                    color: '#58a6ff'
+                    color: '#7c3aed'
                   }
                 }),
               }}
@@ -530,64 +626,70 @@ export default function LicensingCalculator() {
               value={selectedGithubPlan}
               onChange={(option) => setSelectedGithubPlan(option)}
               options={githubPlanOptions}
-              isDisabled={selectedPlan.name === "Copilot Enterprise"}
+              isDisabled={selectedPlans.some(plan => plan.name === "Copilot Enterprise")}
               styles={{
-                control: (baseStyles, { isDisabled }) => ({
-                  ...baseStyles,
-                  padding: '0.35rem 0.5rem',
-                  borderRadius: '8px',
-                  border: '1px solid #30363d',
-                  background: isDisabled ? '#0d1117' : '#161b22',
-                  minHeight: '44px',
-                  height: '44px',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
-                  opacity: isDisabled ? 0.7 : 1,
-                  '&:hover': {
-                    borderColor: isDisabled ? '#30363d' : '#58a6ff',
-                    boxShadow: isDisabled ? '0 1px 3px rgba(0, 0, 0, 0.12)' : '0 0 0 1px rgba(88, 166, 255, 0.5)'
-                  }
-                }),
-                singleValue: (baseStyles) => ({
-                  ...baseStyles,
+                control: (provided, { isDisabled }) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  borderColor: isDisabled ? '#30363d' : provided.isFocused ? '#7c3aed' : '#30363d',
                   color: '#e6edf3',
+                  minHeight: '44px',
                   fontSize: '1rem',
                   fontWeight: '500',
-                }),
-                menu: (baseStyles) => ({
-                  ...baseStyles,
-                  background: '#1a1f24',
+                  borderRadius: '8px',
                   border: '1px solid #30363d',
-                  borderRadius: '6px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                  zIndex: 10
-                }),
-                option: (baseStyles, { isFocused, isSelected }) => ({
-                  ...baseStyles,
-                  backgroundColor: isSelected ? '#1f6feb' : isFocused ? '#30363d' : undefined,
-                  color: '#e6edf3',
-                  padding: '0.75rem 1.2rem',
-                  cursor: 'pointer',
-                  '&:active': {
-                    backgroundColor: '#1a5dca'
+                  opacity: isDisabled ? 0.7 : 1,
+                  boxShadow: provided.isFocused && !isDisabled ? '0 0 0 3px rgba(124, 58, 237, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.12)',
+                  '&:hover': {
+                    borderColor: isDisabled ? '#30363d' : '#7c3aed',
+                    backgroundColor: isDisabled ? '#161b22' : '#0d1117'
                   }
                 }),
-                input: (baseStyles) => ({
-                  ...baseStyles,
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  border: '1px solid #30363d',
+                  borderRadius: '8px',
+                  zIndex: 9999
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isSelected 
+                    ? '#7c3aed' 
+                    : state.isFocused 
+                      ? '#21262c' 
+                      : '#161b22',
                   color: '#e6edf3',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#21262c'
+                  }
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: '#7d8590'
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
+                }),
+                input: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
                 }),
                 indicatorSeparator: () => ({
                   display: 'none',
                 }),
-                dropdownIndicator: (baseStyles) => ({
-                  ...baseStyles,
+                dropdownIndicator: (provided) => ({
+                  ...provided,
                   color: '#8b949e',
                   '&:hover': {
-                    color: '#58a6ff'
+                    color: '#7c3aed'
                   }
                 }),
               }}
             />
-            {selectedPlan.name === "Copilot Enterprise" && (
+            {selectedPlans.some(plan => plan.name === "Copilot Enterprise") && (
               <div style={{ 
                 fontSize: '0.8rem',
                 color: '#8b949e',
@@ -601,56 +703,70 @@ export default function LicensingCalculator() {
         </div>
       </div>
 
-      {/* Developer Count Input */}
-      <div className="request-input-section" style={{ marginBottom: '1.5rem' }}>
+      {/* License Count Input for selected plans - side by side layout */}
+      <div className="request-input-section" style={{ marginBottom: '2rem' }}>
         <div className="form-row" style={{
-          display: 'flex',
-          gap: '1.5rem'
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '1.5rem',
+          marginBottom: '1.5rem'
         }}>
-          <div className="form-column" style={{ flex: 1 }}>
-            <label style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-              fontWeight: '600',
-              color: '#e6edf3'
+          {selectedPlans.map(plan => (
+            <div key={plan.name} className="form-column" style={{ 
+              padding: '1rem',
+              backgroundColor: plan.name.includes('Enterprise') ? 'rgba(124, 58, 237, 0.1)' : 'rgba(31, 111, 235, 0.07)',
+              borderRadius: '8px',
+              border: plan.name.includes('Enterprise') ? '1px solid rgba(124, 58, 237, 0.3)' : '1px solid rgba(31, 111, 235, 0.3)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
             }}>
-              Number of developers:
-              <input
-                type="number"
-                value={developerCount === 0 ? "" : developerCount}
-                min="1"
-                placeholder="Enter number of developers"
-                onChange={e => {
-                  const val = e.target.value;
-                  if (val === "") {
-                    setDeveloperCount(0);
-                  } else {
-                    setDeveloperCount(Number(val));
-                  }
-                }}
-                style={{
-                  padding: '0.5rem 0.8rem',
-                  borderRadius: '8px',
-                  border: '1px solid #30363d',
-                  background: '#161b22',
-                  color: '#e6edf3',
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  marginTop: '0.5rem',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
-                  minHeight: '38px',
-                  height: '38px',
-                  width: '60px',
-                  textAlign: 'center'
-                }}
-              />
-            </label>
-          </div>
+              <label style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.8rem',
+                fontWeight: '600',
+                color: '#e6edf3'
+              }}>
+                <span>{plan.name === "Copilot Business" ? "Copilot Business licenses:" : "Copilot Enterprise licenses:"}</span>
+                <div style={{
+                  fontSize: '0.85rem',
+                  color: plan.name.includes('Enterprise') ? '#b392f0' : '#58a6ff',
+                  marginTop: '-0.5rem'
+                }}>
+                  {plan.name.includes('Enterprise') ? "$39 per user/month" : "$19 per user/month"}
+                </div>
+                <input
+                  type="number"
+                  value={planDeveloperCounts[plan.name] === 0 ? "" : (planDeveloperCounts[plan.name] || developerCount)}
+                  min="1"
+                  placeholder="Enter license number"
+                  onChange={(e) => {
+                    const value = e.target.value === "" ? 0 : Math.max(1, parseInt(e.target.value) || 0);
+                    setPlanDeveloperCounts({
+                      ...planDeveloperCounts,
+                      [plan.name]: value
+                    });
+                  }}
+                  style={{
+                    padding: '0.6rem 1rem',
+                    borderRadius: '8px',
+                    border: '1px solid #30363d',
+                    background: '#161b22',
+                    color: '#e6edf3',
+                    width: '100%',
+                    fontSize: '1rem',
+                    fontWeight: '500',
+                    minHeight: '44px', 
+                    appearance: 'none',
+                    MozAppearance: 'textfield',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
+                  }}
+                />
+              </label>
+            </div>
+          ))}
         </div>
       </div>
-      
+
       {/* Additional Options Card */}
       <div 
         className="options-card"
@@ -830,7 +946,7 @@ export default function LicensingCalculator() {
                           }}
                           style={{
                             padding: '0.3rem 0.5rem',
-                            borderRadius: '4px',
+                            borderRadius: '8px',  // Updated from 4px to 8px
                             border: '1px solid #30363d',
                             background: '#161b22',
                             color: '#e6edf3',
@@ -903,7 +1019,7 @@ export default function LicensingCalculator() {
                           }}
                           style={{
                             padding: '0.3rem 0.5rem',
-                            borderRadius: '4px',
+                            borderRadius: '8px',  // Updated from 4px to 8px
                             border: '1px solid #30363d',
                             background: '#161b22',
                             color: '#e6edf3',
@@ -965,70 +1081,28 @@ export default function LicensingCalculator() {
         </div>
       </div>
 
-      {/* Plan Details Row */}
-      <div className="details-row" style={{
+
+      
+      {/* Cost Breakdown Section with Monthly/Yearly toggle on same line */}
+      <div style={{
         display: 'flex',
-        gap: '1.5rem',
-        marginBottom: '1.5rem'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '0'
       }}>
-        <div className="plan-details" style={{
-          flex: 1,
-          background: '#161b22',
-          border: '1px solid #30363d',
-          borderRadius: '10px',
-          padding: '1.5rem',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
+        <h2 className="multiplier-title" style={{
+          fontSize: '1.6rem',
+          fontWeight: '700',
+          margin: '0',
+          letterSpacing: '-0.5px',
+          color: '#e6edf3',
+        }}>Cost Breakdown</h2>
+        
+        {/* Monthly/Yearly toggle */}
+        <div className="toggle-container" style={{
+          display: 'flex',
+          justifyContent: 'flex-end'
         }}>
-          <h3 className="plan-details-title" style={{
-            fontSize: '1.2rem',
-            fontWeight: '600',
-            color: '#e6edf3',
-            margin: '0 0 1rem 0'
-          }}>Plan Details</h3>
-          <div className="plan-details-content">
-            <div className="plan-detail-row" style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '0.5rem 0',
-              borderBottom: '1px solid #30363d'
-            }}>
-              <span className="plan-detail-label" style={{ color: '#8b949e' }}>
-                Monthly Cost:
-              </span>
-              <span className="plan-detail-value" style={{ color: '#e6edf3', fontWeight: '600' }}>
-                ${formatNumber(basePrice)} per user
-              </span>
-            </div>
-            <div className="plan-detail-row" style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '0.5rem 0'
-            }}>
-              <span className="plan-detail-label" style={{ color: '#8b949e' }}>Premium Requests:</span>
-              <span className="plan-detail-value" style={{ color: '#e6edf3', fontWeight: '600' }}>
-                {premiumRequests}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Cost Breakdown Section */}
-      <h2 className="multiplier-title" style={{
-        fontSize: '1.6rem',
-        fontWeight: '700',
-        margin: '2rem 0 1rem 0',
-        letterSpacing: '-0.5px',
-        color: '#e6edf3',
-        textAlign: 'left'
-      }}>Cost Breakdown</h2>
-      
-      {/* Monthly/Yearly toggle */}
-      <div className="toggle-container" style={{
-        display: 'flex',
-        justifyContent: 'flex-end',
-        marginBottom: '1rem'
-      }}>
         <div style={{
           display: 'inline-flex',
           background: '#1a1f24',
@@ -1069,6 +1143,7 @@ export default function LicensingCalculator() {
             Yearly
           </button>
         </div>
+        </div>
       </div>
       
       <div className="multiplier-info" style={{
@@ -1087,41 +1162,60 @@ export default function LicensingCalculator() {
               paddingBottom: '1rem',
               borderBottom: '1px solid #30363d'
             }}>
-              <h5 style={{ color: '#58a6ff', margin: '0 0 0.5rem 0', fontSize: '1.1rem', fontWeight: '600', textAlign: 'left' }}>
-                {selectedPlan.name}
-              </h5>
-              <div className="formula formula-aligned" style={{ 
-                fontSize: '0.9rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                width: '100%',
-                margin: '0.5rem 0'
-              }}>
-                <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>${formatNumber(basePrice)}</span>
-                <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
-                <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{developerCount}</span>
-                <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
-                <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{calculationMonths}</span>
-                <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>=</span>
-                <span className="formula-result" style={{flex: 1, textAlign: 'center', fontWeight: 'bold', color: '#e6edf3'}}>${formatNumber(basePrice * developerCount * calculationMonths)}</span>
-              </div>
-              <div className="formula-labels formula-aligned" style={{ 
-                fontSize: '0.8rem', 
-                color: '#8b949e',
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                width: '100%'
-              }}>
-                <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Price/user</span>
-                <span className="formula-label blank" style={{flex: 0.3}}></span>
-                <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Developers</span>
-                <span className="formula-label blank" style={{flex: 0.3}}></span>
-                <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Months</span>
-                <span className="formula-label blank" style={{flex: 0.3}}></span>
-                <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Total</span>
-              </div>
+              {selectedPlans.map(plan => {
+                const planBasePrice = getBasePrice(plan);
+                const planDevCount = planDeveloperCounts[plan.name] || 0;
+                
+                return (
+                  <div key={plan.name} style={{ marginBottom: '1.5rem' }}>
+                    <h5 style={{ 
+                      fontSize: '1.1rem', 
+                      fontWeight: '600', 
+                      color: plan.name.includes('Enterprise') ? '#b392f0' : '#58a6ff', 
+                      margin: '0 0 0.5rem 0',
+                      borderBottom: '1px solid #30363d',
+                      paddingBottom: '0.5rem',
+                      textAlign: 'left'
+                    }}>
+                      {plan.name}
+                    </h5>
+                    <div className="formula formula-aligned" style={{ 
+                      fontSize: '0.9rem', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between',
+                      width: '100%',
+                      margin: '0.5rem 0'
+                    }}>
+                      <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>${formatNumber(planBasePrice)}</span>
+                      <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
+                      <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{planDevCount}</span>
+                      <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>×</span>
+                      <span className="formula-part" style={{flex: 1, textAlign: 'center'}}>{calculationMonths}</span>
+                      <span className="formula-operator" style={{flex: 0.3, textAlign: 'center'}}>=</span>
+                      <span className="formula-result" style={{flex: 1, textAlign: 'center', fontWeight: 'bold', color: '#e6edf3'}}>${formatNumber(planBasePrice * planDevCount * calculationMonths)}</span>
+                    </div>
+                    <div className="formula-labels formula-aligned" style={{ 
+                      fontSize: '0.8rem', 
+                      color: '#8b949e',
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between',
+                      width: '100%'
+                    }}>
+                      <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Price/user</span>
+                      <span className="formula-label blank" style={{flex: 0.3}}></span>
+                      <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Licenses</span>
+                      <span className="formula-label blank" style={{flex: 0.3}}></span>
+                      <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Months</span>
+                      <span className="formula-label blank" style={{flex: 0.3}}></span>
+                      <span className="formula-label" style={{flex: 1, textAlign: 'center'}}>Total</span>
+                    </div>
+                  </div>
+                );
+              })}
+              
+
             </div>
             
             {/* Additional Options Cost */}
@@ -1368,20 +1462,29 @@ export default function LicensingCalculator() {
             margin: '0 0 1rem 0'
           }}>GitHub Copilot Cost</h3>
           
-          <div className="result-row" style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '0.6rem 0',
-            borderBottom: '1px solid #30363d'
-          }}>
-            <span style={{ color: '#8b949e' }}>{selectedPlan.name} ({developerCount} user{developerCount !== 1 ? 's' : ''}):</span>
-            <b style={{ color: '#e6edf3' }}>
-              ${showYearlyCost 
-                 ? formatNumber(calculateCopilotCost()) 
-                 : formatNumber(basePrice * developerCount)}{showYearlyCost ? '/year' : '/month'}
-            </b>
-          </div>
+          {selectedPlans.map(plan => {
+            const planBasePrice = getBasePrice(plan);
+            const planDevCount = planDeveloperCounts[plan.name] || 0;
+            
+            return (
+              <div key={plan.name} className="result-row" style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.6rem 0',
+                borderBottom: '1px solid #30363d'
+              }}>
+                <span style={{ color: '#8b949e' }}>{plan.name} ({planDevCount} license{planDevCount !== 1 ? 's' : ''}):</span>
+                <b style={{ color: '#e6edf3' }}>
+                  ${showYearlyCost 
+                     ? formatNumber(calculateCopilotCost(plan)) 
+                     : formatNumber(planBasePrice * planDevCount)}{showYearlyCost ? '/year' : '/month'}
+                </b>
+              </div>
+            );
+          })}
+          
+
         </div>
         
         {/* Total Cost Section */}
@@ -1421,11 +1524,9 @@ export default function LicensingCalculator() {
         marginTop: '1.5rem',
         justifyContent: 'center'
       }}>
-        <a
+        <Link
+          to="/features?compare=business,enterprise"
           className="copilot-pricing-btn"
-          href={selectedPlan.githubUrl || "https://github.com/features/copilot/plans"}
-          target="_blank"
-          rel="noopener noreferrer"
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -1445,8 +1546,8 @@ export default function LicensingCalculator() {
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.12)'
           }}
         >
-          Get {selectedPlan.name}
-        </a>
+          Compare Copilot Plans
+        </Link>
         <a
           className="copilot-feature-btn"
           href="https://docs.github.com/en/enterprise-cloud@latest/copilot/about-github-copilot/plans-for-github-copilot"

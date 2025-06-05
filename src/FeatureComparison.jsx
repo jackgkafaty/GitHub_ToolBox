@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { planDetails, featureCategories } from './plans.js';
+import { useLocation } from 'react-router-dom';
 
 const FeatureComparison = () => {
   const plans = planDetails.map(plan => plan.name.replace('Copilot ', ''));
+  const location = useLocation();
   const [selectedPlans, setSelectedPlans] = useState([]);
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const comparePlansParam = params.get('compare');
+    if (comparePlansParam) {
+      const plansToCompare = comparePlansParam.split(',');
+      const planIndices = [];
+      
+      planDetails.forEach((plan, index) => {
+        if (plansToCompare.some(p => plan.name.toLowerCase().includes(p.toLowerCase()))) {
+          planIndices.push(index);
+        }
+      });
+      
+      // Limit to 2 plans
+      setSelectedPlans(planIndices.slice(0, 2));
+    }
+  }, [location.search]);
 
   const handlePlanSelect = (index) => {
     if (selectedPlans.includes(index)) {
