@@ -1395,7 +1395,8 @@ export default function LicensingCalculator() {
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
       }}>
         {/* GitHub License Cost Section */}
-        {selectedOptions.includes('enterpriseCloud') && (
+        {(selectedOptions.includes('enterpriseCloud') || 
+          (selectedOptions.includes('visualStudio') && optionLicenseCounts['visualStudio'] > 0)) && (
           <div className="github-license-section" style={{marginBottom: '1.5rem'}}>
             <h3 style={{
               fontSize: '1.2rem',
@@ -1405,7 +1406,7 @@ export default function LicensingCalculator() {
             }}>GitHub License Cost</h3>
             
             {/* GHEC License line item */}
-            {optionLicenseCounts['enterpriseCloud'] > 0 && (
+            {selectedOptions.includes('enterpriseCloud') && optionLicenseCounts['enterpriseCloud'] > 0 && (
               <div className="result-row" style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -1430,7 +1431,7 @@ export default function LicensingCalculator() {
               </div>
             )}
             
-            {/* Visual Studio Bundle line item */}
+            {/* Visual Studio Bundle line item when Enterprise Cloud is also selected */}
             {selectedOptions.includes("visualStudio") && 
              selectedOptions.includes("enterpriseCloud") && 
              hasExistingVSLicenses && 
@@ -1443,6 +1444,26 @@ export default function LicensingCalculator() {
                 borderBottom: '1px solid #30363d'
               }}>
                 <span style={{ color: '#8b949e' }}>GitHub Enterprise Cloud - Visual Studio Bundle ({optionLicenseCounts['visualStudio']} license{optionLicenseCounts['visualStudio'] !== 1 ? 's' : ''}):</span>
+                <b style={{ color: '#e6edf3' }}>
+                  ${showYearlyCost 
+                     ? formatNumber(calculateVSSubscriptionCost()) 
+                     : formatNumber(calculateVSSubscriptionCost() / calculationMonths)}{showYearlyCost ? '/year' : '/month'}
+                </b>
+              </div>
+            )}
+            
+            {/* Visual Studio Bundle line item when Enterprise Cloud is not selected */}
+            {selectedOptions.includes("visualStudio") && 
+             !selectedOptions.includes("enterpriseCloud") && 
+             optionLicenseCounts["visualStudio"] > 0 && (
+              <div className="result-row" style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.6rem 0',
+                borderBottom: '1px solid #30363d'
+              }}>
+                <span style={{ color: '#8b949e' }}>Visual Studio subscriptions with GitHub Enterprise ({optionLicenseCounts['visualStudio']} license{optionLicenseCounts['visualStudio'] !== 1 ? 's' : ''}):</span>
                 <b style={{ color: '#e6edf3' }}>
                   ${showYearlyCost 
                      ? formatNumber(calculateVSSubscriptionCost()) 
