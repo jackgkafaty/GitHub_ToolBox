@@ -148,6 +148,27 @@ export default function LicensingCalculator() {
   // Removed the useEffect that cleared additional options when Advanced Security is enabled
   // Users should be able to select both Advanced Security and additional bundling options
 
+  // Reset Advanced Security license counts when features are deselected
+  useEffect(() => {
+    const newLicenseCounts = { ...advancedSecurityLicenseCounts };
+    
+    // Reset Secret Protection count if feature is not selected
+    if (!selectedAdvancedSecurityFeatures.includes('secretProtection')) {
+      newLicenseCounts.secretProtection = 0;
+    }
+    
+    // Reset Code Security count if feature is not selected
+    if (!selectedAdvancedSecurityFeatures.includes('codeSecurity')) {
+      newLicenseCounts.codeSecurity = 0;
+    }
+    
+    // Only update state if there are actual changes to avoid infinite loops
+    if (newLicenseCounts.secretProtection !== advancedSecurityLicenseCounts.secretProtection ||
+        newLicenseCounts.codeSecurity !== advancedSecurityLicenseCounts.codeSecurity) {
+      setAdvancedSecurityLicenseCounts(newLicenseCounts);
+    }
+  }, [selectedAdvancedSecurityFeatures]);
+
   // Find premium requests for a specific plan
   const findPremiumRequests = (plan) => {
     // Find the "Premium requests" category
@@ -2720,22 +2741,23 @@ export default function LicensingCalculator() {
         )}
 
         {/* GitHub Copilot Cost Section */}
-        <div
-          className="github-copilot-section"
-          style={{ marginBottom: "1.5rem" }}
-        >
-          <h3
-            style={{
-              fontSize: "1.2rem",
-              fontWeight: "600",
-              color: "#e6edf3",
-              margin: "0 0 1rem 0",
-            }}
+        {selectedPlans.length > 0 && selectedPlans.some(plan => (planDeveloperCounts[plan.name] || 0) > 0) && (
+          <div
+            className="github-copilot-section"
+            style={{ marginBottom: "1.5rem" }}
           >
-            GitHub Copilot
-          </h3>
+            <h3
+              style={{
+                fontSize: "1.2rem",
+                fontWeight: "600",
+                color: "#e6edf3",
+                margin: "0 0 1rem 0",
+              }}
+            >
+              GitHub Copilot
+            </h3>
 
-          {selectedPlans.map((plan) => {
+            {selectedPlans.map((plan) => {
             const planBasePrice = getBasePrice(plan);
             const planDevCount = planDeveloperCounts[plan.name] || 0;
 
@@ -2766,6 +2788,7 @@ export default function LicensingCalculator() {
             );
           })}
         </div>
+        )}
 
         {/* GitHub Advanced Security Cost Section */}
         {(advancedSecurityLicenseCounts.secretProtection > 0 || advancedSecurityLicenseCounts.codeSecurity > 0) && (
@@ -2773,6 +2796,17 @@ export default function LicensingCalculator() {
             className="github-advanced-security-section"
             style={{ marginBottom: "1.5rem" }}
           >
+            <h3
+              style={{
+                fontSize: "1.2rem",
+                fontWeight: "600",
+                color: "#e6edf3",
+                margin: "0 0 1rem 0",
+              }}
+            >
+              GitHub Advanced Security
+            </h3>
+
             {/* Secret Protection licenses */}
             {advancedSecurityLicenseCounts.secretProtection > 0 && (
               <div
