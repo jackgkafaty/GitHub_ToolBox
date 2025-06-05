@@ -10,5 +10,11 @@ export default defineConfig({
   server: {
     // Always open at the base path in development
     open: true
+  },
+  build: {
+    rollupOptions: {
+      external: [],
+      output: {}
+    }
   }
 })
