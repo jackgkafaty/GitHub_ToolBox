@@ -48,6 +48,13 @@ export default function Calculator() {
     color: `hsl(${(index * 137.5) % 360}, 70%, 60%)` // Generate distinct colors
   }));
 
+  // Create plan options for react-select
+  const planOptions = plans.map((plan, index) => ({
+    value: plan,
+    label: plan.name,
+    color: `hsl(${(index * 180) % 360}, 70%, 60%)` // Generate distinct colors for plans
+  }));
+
   const getMultiplier = () => {
     if (selectedModels.length === 1) {
       const model = selectedModels[0];
@@ -99,11 +106,66 @@ export default function Calculator() {
         <div className="form-column">
           <label>
             Plan:
-            <select value={selectedPlan.key} onChange={e => setSelectedPlan(plans.find(p => p.key === e.target.value))}>
-              {plans.map(plan => (
-                <option key={plan.key} value={plan.key}>{plan.name}</option>
-              ))}
-            </select>
+            <Select
+              value={planOptions.find(option => option.value.key === selectedPlan.key)}
+              onChange={(selectedOption) => {
+                if (selectedOption) {
+                  setSelectedPlan(selectedOption.value);
+                }
+              }}
+              options={planOptions}
+              styles={{
+                control: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  borderColor: state.isFocused ? '#7c3aed' : '#30363d',
+                  color: '#e6edf3',
+                  minHeight: '44px',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  borderRadius: '8px',
+                  border: '1px solid #30363d',
+                  boxShadow: state.isFocused ? '0 0 0 3px rgba(124, 58, 237, 0.1)' : '0 1px 3px rgba(0, 0, 0, 0.12)',
+                  '&:hover': {
+                    borderColor: '#7c3aed',
+                    backgroundColor: '#0d1117'
+                  }
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: '#161b22',
+                  border: '1px solid #30363d',
+                  borderRadius: '8px',
+                  zIndex: 9999
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isSelected 
+                    ? '#7c3aed' 
+                    : state.isFocused 
+                      ? '#21262c' 
+                      : '#161b22',
+                  color: '#e6edf3',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: '#21262c'
+                  }
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: '#7d8590'
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
+                }),
+                input: (provided) => ({
+                  ...provided,
+                  color: '#e6edf3'
+                })
+              }}
+              placeholder="Select plan..."
+            />
           </label>
         </div>
 
