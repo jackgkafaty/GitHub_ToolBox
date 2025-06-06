@@ -5,6 +5,22 @@ import Calculator from './Calculator';
 import FeatureComparison from './FeatureComparison';
 import LicensingCalculator from './LicensingCalculator';
 
+// Google Analytics page tracking component
+function GoogleAnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Track page views on route changes
+    if (typeof window.gtag !== 'undefined') {
+      window.gtag('config', 'G-V5F67825SF', {
+        page_path: location.pathname + location.search,
+      });
+    }
+  }, [location]);
+
+  return null;
+}
+
 // Navigation icons as SVG components for better performance
 const CalculatorIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -184,6 +200,7 @@ export default function App() {
 
   return (
     <Router basename={basename}>
+      <GoogleAnalyticsTracker />
       <div className="copilot-hero-bg">
         <header className="copilot-header">
           <img src={githubIcon} alt="GitHub" className="copilot-header-icon copilot-header-icon-large" />
